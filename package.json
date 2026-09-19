@@ -17,7 +17,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@hookedin/game-sdk": "git+https://github.com/hookedin/game-sdk.git#semver:^1.0.0"
+    "@hookedin/game-sdk": "git+https://github.com/hookedin/game-sdk.git#main"
   },
   "devDependencies": {
     "@types/node": "24.13.5",
