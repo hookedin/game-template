@@ -3,7 +3,6 @@
 #   secret   CLOUDFLARE_API_TOKEN    a Cloudflare API token made from the "Edit Cloudflare Workers" template
 #   variable CLOUDFLARE_ACCOUNT_ID   your Cloudflare account ID
 #   variable HOOKEDIN_DEVELOPER      the address that earns this game's commission
-#   variable HOOKEDIN_ORACLE         (player-versus-player games) the public URL of the game's referee
 # Without the token the workflow still tests and builds; it just does not publish.
 name: Deploy
 on:
@@ -29,7 +28,6 @@ jobs:
       - run: npm run build
         env:
           HOOKEDIN_DEVELOPER: ${{ vars.HOOKEDIN_DEVELOPER }}
-          HOOKEDIN_ORACLE: ${{ vars.HOOKEDIN_ORACLE }}
       - name: Publish to Cloudflare
         if: env.CLOUDFLARE_API_TOKEN != ''
         uses: cloudflare/wrangler-action@v3

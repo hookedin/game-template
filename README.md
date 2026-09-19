@@ -74,7 +74,6 @@ The build is the SDK's `hookedin-game` command. It bundles `src/game.ts` with es
 | `developer`   | yes      | The address that earns the game's commission. Not the zero address. `HOOKEDIN_DEVELOPER` overrides it at build time                                                     |
 | `description` | no       | Shown with the game. The wallet shows at most 220 characters                                                                                                            |
 | `id`          | no       | Lowercase letters, digits and hyphens, starting with a letter or digit; at most 32 characters; not `custom`. Gives a catalog game the wallet URL `/games/<id>`          |
-| `oracle`      | no       | Player-versus-player games only: the URL of the game's referee. `HOOKEDIN_ORACLE` overrides it at build time, and the build adds its origin to the page's `connect-src` |
 
 The manifest must be at most 16 KB and served with CORS headers. Any manifest, listed or not, is linkable as `https://play.hookedin.com/games/custom?manifest=<encoded manifest URL>`. Opening a link loads the game; it grants no spending authority. Some reference manifests also carry a `template` field; the wallet does not read it.
 
@@ -103,7 +102,7 @@ default-src 'self'; script-src 'self'; style-src 'self'; worker-src 'self'; conn
 img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'
 ```
 
-So: no inline scripts or inline `<style>` blocks, no CDN scripts or fonts, no third-party requests. Bundle what you need. If your game has an `oracle`, its origin is added to `connect-src`. The policy is yours to change if you host elsewhere, but a tight one is part of what makes a game trustworthy.
+So: no inline scripts or inline `<style>` blocks, no CDN scripts or fonts, no third-party requests. Bundle what you need. The policy is yours to change if you host elsewhere, but a tight one is part of what makes a game trustworthy.
 
 ## Game balances
 
@@ -126,10 +125,10 @@ import { HookedIn } from '@hookedin/game-sdk/sdk';
 const info = await HookedIn.call('wallet.info');
 
 // The same request without the SDK:
-parent.postMessage({ hookedin: true, id: crypto.randomUUID(), method: 'wallet.info', params: {} }, '*');
+parent.postMessage({ hookedin: true, id: 1, method: 'wallet.info', params: {} }, '*');
 ```
 
-A reply carries the same `id` and either `result` or `error`. The wallet accepts requests only from the iframe it opened, handles **one request at a time** (a second request sent before the first reply is refused), uses each envelope `id` once, limits a request to about 70,000 characters, and accepts at most 2,500 requests per game session before asking the player to reload. Await every call.
+A reply carries the same `id` and either `result` or `error`. The wallet accepts requests only from the iframe it opened, handles **one request at a time** (a second request sent before the first reply is refused), needs each envelope `id` to be a whole number larger than the last, and limits a request to about 70,000 characters. Await every call.
 
 Amounts are decimal wei strings. The `id` inside a financial request is your durable name for that operation: 1 to 64 characters of letters, digits, `.`, `_`, `:` or `-`. The same `id` with the same terms returns the saved receipt; the same `id` with different terms fails.
 
@@ -143,8 +142,9 @@ Amounts are decimal wei strings. The `id` inside a financial request is your dur
 | `game.transfer`     | `{id, amount}`               | Pays the manifest's `developer` address only. Pending, then a verified receipt                                 |
 | `game.receipt`      | `{id}`                       | The outcome of an earlier operation by your `id`, or `null`                                                    |
 | `game.cancel`       | `{id}`                       | Withdraws a hosted bet or a stake nobody settled; or its result if already played                              |
-| `game.stake`        | `{id, match}`                | Player versus player: `{status: 'pending', entry}`, later the verified stake                                   |
-| `game.match`        | `{matchId}`                  | `{status, stakes, pot, outcome, payout, collected}` for a match the player entered                             |
+| `game.buyIn`        | `{id, table, amount}`        | Between players: put money on a table its host pays out; the verified receipt                                  |
+| `game.table`        | `{tableId}`                  | `{tableId, bought, collected}`: what this wallet put on a table and has collected from it                      |
+| `game.identify`     | `{nonce}`                    | The wallet's signed word, for your own server, about who is playing                                            |
 
 One event arrives unasked: `game.balance` with `{balance, pending}`.
 
@@ -265,7 +265,7 @@ Reference games built this way: [game-dice](https://github.com/hookedin/game-dic
 
 ## Player versus player
 
-Players can stake against each other in a **match**: the casino escrows the pot and a referee you run, the match oracle, decides which seat is paid. The page uses `game.stake` and `game.match`, and sets `oracle` in its manifest. [game-rps](https://github.com/hookedin/game-rps) is the reference game and [reference/oracle.ts](https://github.com/hookedin/play/blob/main/reference/oracle.ts) the reference referee.
+Players can play each other at a **table**: the casino holds what they buy in, and a server you run, the table's host, signs who is paid out of it. The page uses `game.buyIn` and `game.identify`; the server uses the [host kit](https://github.com/hookedin/game-sdk/blob/main/src/host.ts), and ships with the page as one Cloudflare Worker. [poker](https://github.com/hookedin/poker) is the full reference and [game-rps](https://github.com/hookedin/game-rps) the small one.
 
 ## Commission
 
