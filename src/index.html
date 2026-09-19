@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>HookedIn bridge probe</title>
+    <link rel="icon" type="image/svg+xml" href="./brand/hookedin-mark.svg" />
+    <link rel="stylesheet" href="./shared.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main>
+      <header class="game-head">
+        <div>
+          <div class="eyebrow">DEVELOPER TOOL</div>
+          <div class="game-title">
+            <h1>Bridge probe</h1>
+            <span class="edition">NOT A GAME</span>
+          </div>
+        </div>
+        <div class="head-note"><span class="live-dot"></span>Every reply, verbatim.</div>
+      </header>
+      <div id="bank" class="bank" data-state="connecting"></div>
+      <section class="probe-grid" aria-label="Bridge requests">
+        <div class="field">
+          <label for="probe-stake">Stake · wei</label>
+          <div class="input-wrap"><input id="probe-stake" inputmode="numeric" value="1000000000000" /></div>
+        </div>
+        <div class="field">
+          <label for="probe-id">Operation ID</label>
+          <div class="input-wrap"><input id="probe-id" value="" placeholder="generated per request" /></div>
+        </div>
+        <button class="secondary" data-preset="bet" type="button">game.bet · 50% to double</button>
+        <button class="secondary" data-preset="shared" type="button">game.bet · shared round</button>
+        <button class="secondary" data-preset="cancel" type="button">game.cancel · last ID</button>
+        <button class="secondary" data-preset="payment" type="button">game.payment · stake</button>
+        <button class="secondary" data-preset="transfer" type="button">game.transfer · stake</button>
+        <button class="secondary" data-preset="receipt" type="button">game.receipt · last ID</button>
+        <button class="secondary" data-preset="info" type="button">wallet.info</button>
+        <button class="secondary" data-preset="funds" type="button">game.requestFunds · stake</button>
+      </section>
+      <label class="field-label" for="probe-request">Raw request (edit, then send)</label>
+      <textarea id="probe-request" rows="6" spellcheck="false"></textarea>
+      <div class="probe-actions">
+        <button class="primary" id="probe-send" type="button">Send ↗</button>
+        <button class="secondary" id="probe-clear" type="button">Clear output</button>
+      </div>
+      <pre id="probe-output" class="probe-output" aria-live="polite">Replies appear here, newest first.</pre>
+      <footer class="foot">
+        <div class="foot-note">
+          Exercises the wallet bridge without game rules: rejections, transfers, lost replies and funding prompts.
+        </div>
+      </footer>
+    </main>
+    <script type="module" src="./game.js" crossorigin="anonymous"></script>
+  </body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "@hookedin/game-template",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "repository": "github:hookedin/game-template",
+  "engines": {
+    "node": ">=24.4"
+  },
+  "scripts": {
+    "build": "hookedin-game build",
+    "dev": "hookedin-game serve",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@hookedin/game-sdk": "github:hookedin/game-sdk#v1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.5",
+    "prettier": "3.9.8",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2"
+  }
+}

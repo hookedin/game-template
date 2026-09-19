@@ -1,0 +1,47 @@
+.probe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  align-items: end;
+  margin: 24px 0 16px;
+}
+.probe-grid .secondary {
+  height: 44px;
+  font-size: 12px;
+  padding: 0 12px;
+}
+textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: inherit;
+  font:
+    12px/1.6 ui-monospace,
+    SFMono-Regular,
+    monospace;
+  resize: vertical;
+}
+.probe-actions {
+  display: flex;
+  gap: 10px;
+  margin: 12px 0 20px;
+}
+.probe-output {
+  margin: 0;
+  padding: 16px;
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #0b0f10;
+  color: #c9d2d0;
+  font:
+    11px/1.7 ui-monospace,
+    SFMono-Regular,
+    monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
