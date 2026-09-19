@@ -290,16 +290,15 @@ Keep the probe around in a branch. It is the fastest way to reproduce a wallet r
 
 ## Deploy
 
-`npm run build` writes `dist/`: plain static files. On Cloudflare Pages:
+`npm run build` writes `dist/`: plain static files. This repository deploys itself to Cloudflare whenever `main` is pushed, through [.github/workflows/deploy.yml](.github/workflows/deploy.yml) and [wrangler.jsonc](wrangler.jsonc). In your fork:
 
-1. Create a Pages project and connect your repository.
-2. Build command: `npm run build`. Build output directory: `dist`.
-3. Add the environment variable `HOOKEDIN_DEVELOPER=0xYourAddress`. This is the address that earns the game's commission.
-4. Optionally add a custom domain.
+1. In [wrangler.jsonc](wrangler.jsonc), change `name`, and replace `routes` with a domain on your Cloudflare account or remove it. Without `routes` the game is served at `<name>.<your-subdomain>.workers.dev`.
+2. In the repository's **Settings → Secrets and variables → Actions**, add the secret `CLOUDFLARE_API_TOKEN` (create it in Cloudflare from the **Edit Cloudflare Workers** template) and the variables `CLOUDFLARE_ACCOUNT_ID` and `HOOKEDIN_DEVELOPER`, the address that earns the game's commission.
+3. Push to `main`. The workflow tests, builds and publishes.
 
-The build needs Node 24.4 or later; set `NODE_VERSION` on Pages if its default is older.
+To publish by hand instead: `HOOKEDIN_DEVELOPER=0xYourAddress npm run build && npx wrangler deploy`.
 
-Any static host works. It must send the headers in `dist/_headers`, which Cloudflare Pages applies by itself. The one that matters most is `Access-Control-Allow-Origin: *`: the wallet fetches `manifest.json` from a different origin and refuses a game whose manifest it cannot read. The file also sets the page's Content-Security-Policy.
+Any static host works. It must send the headers in `dist/_headers`, which Cloudflare applies by itself. The one that matters most is `Access-Control-Allow-Origin: *`: the wallet fetches `manifest.json` from a different origin and refuses a game whose manifest it cannot read. The file also sets the page's Content-Security-Policy. Do not host the game on the wallet's own origin; the wallet refuses that too.
 
 Your game is then playable by anyone who loads `https://your-host/manifest.json` as a custom game, or through the link `https://play.hookedin.com/games/custom?manifest=<encoded manifest URL>`.
 

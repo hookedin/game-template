@@ -1,0 +1,8 @@
+// Where `wrangler deploy` publishes dist/: a Cloudflare Worker that only serves static assets (the successor to Pages).
+// Give the Worker your own `name`; add "routes": [{ "pattern": "game.example.com", "custom_domain": true }] to serve it
+// from a domain on your Cloudflare account. Without routes it is served at <name>.<your-subdomain>.workers.dev.
+{
+  "name": "my-hookedin-game",
+  "compatibility_date": "2026-09-01",
+  "assets": { "directory": "dist" },
+}
