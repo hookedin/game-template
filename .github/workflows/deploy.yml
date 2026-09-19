@@ -25,6 +25,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # The lockfile must hold the newest compatible SDK release. When this fails, run the same update, test and commit.
+      - run: npm update --package-lock-only @hookedin/game-sdk @hookedin/play && git diff --exit-code package-lock.json
       - run: npm test
       - run: npm run build
         env:

@@ -286,7 +286,7 @@ The arithmetic is in [pricing and commission](https://github.com/hookedin/play/b
 3. [src/game.ts](src/game.ts): your rules. Start from the one-shot example above or from a `RoundClient` graph.
 4. `package.json`: the package `name` and `repository`.
 
-Keep the probe around in a branch. It is the fastest way to reproduce a wallet reply you did not expect. The wallet also keeps a developer log of every bridge message for the open game, which you can download from the game's page.
+Keep the probe around in a branch. It is the fastest way to reproduce a wallet reply you did not expect. The wallet also keeps a developer log of every bridge message for the open game, which you can read and download below the game when the wallet URL carries `?log`.
 
 ## Deploy
 
