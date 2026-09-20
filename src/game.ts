@@ -31,13 +31,14 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
       id: operationId(),
       stake: stake(),
       prizes: [half()],
-      round: { id: '0x' + '22'.repeat(32), seed: '0x' + '33'.repeat(32) },
+      round: { id: '0x' + '22'.repeat(32), seedHash: '0x' + '33'.repeat(32) },
     },
   }),
   cancel: () => ({ method: 'game.cancel', params: { id: lastId || operationId() } }),
   payment: () => ({ method: 'game.payment', params: { id: operationId(), amount: stake() } }),
   transfer: () => ({ method: 'game.transfer', params: { id: operationId(), amount: stake() } }),
   receipt: () => ({ method: 'game.receipt', params: { id: lastId || operationId() } }),
+  hello: () => ({ method: 'wallet.hello', params: {} }),
   info: () => ({ method: 'wallet.info', params: {} }),
   funds: () => ({ method: 'game.requestFunds', params: { amount: stake(), reason: 'Probe funding request.' } }),
 };
@@ -68,9 +69,10 @@ $('probe-clear').addEventListener('click', () => {
   output.textContent = 'Replies appear here, newest first.';
 });
 HookedIn.onBalance(balance => log('event game.balance', balance));
-void HookedIn.call('wallet.info')
-  .then(info => {
-    log('wallet.info', info);
+void HookedIn.hello()
+  .then(async hello => {
+    log('wallet.hello', hello);
+    log('wallet.info', await HookedIn.info());
     request.value = JSON.stringify(presets.bet!(), null, 2);
   })
-  .catch(error => log('startup', error.message));
+  .catch(error => log('startup', { code: error.code, message: error.message }));

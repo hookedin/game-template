@@ -122,33 +122,35 @@ Import the bridge, or post the envelopes yourself:
 
 ```ts
 import { HookedIn } from '@hookedin/game-sdk/sdk';
-const info = await HookedIn.call('wallet.info');
+const { asset } = await HookedIn.hello(); // what this wallet offers and the asset it plays with
+const info = await HookedIn.info();
 
 // The same request without the SDK:
-parent.postMessage({ hookedin: true, id: 1, method: 'wallet.info', params: {} }, '*');
+parent.postMessage({ hookedin: true, id: 1, method: 'wallet.hello', params: {} }, '*');
 ```
 
-A reply carries the same `id` and either `result` or `error`. The wallet accepts requests only from the iframe it opened, handles **one request at a time** (a second request sent before the first reply is refused), needs each envelope `id` to be a whole number larger than the last, and limits a request to about 70,000 characters. Await every call.
+A reply carries the same `id` and either `result` or `error: {code, message}`; the SDK rejects with a `HookedInError`, whose stable `code` is what your game acts on. The wallet accepts requests only from the iframe it opened, at the origin of your entry page, needs each envelope `id` to be a whole number larger than the last, and limits a request to about 70,000 characters. Questions are answered at once; whatever signs or asks the player takes its turn in the order you asked.
 
-Amounts are decimal wei strings. The `id` inside a financial request is your durable name for that operation: 1 to 64 characters of letters, digits, `.`, `_`, `:` or `-`. The same `id` with the same terms returns the saved receipt; the same `id` with different terms fails.
+A wallet plays with the network's ETH or with the casino's test coins, and `wallet.hello` says which. Amounts are whole numbers of the asset's smallest unit, as decimal strings; `wallet.hello` gives the asset's `symbol` and `decimals`, and `HookedIn.parseAmount` and `formatAmount` convert with them, so a game needs no code of its own for test coins. The `id` inside a financial request is your durable name for that operation: 1 to 64 characters of letters, digits, `.`, `_`, `:` or `-`. The same `id` with the same terms returns the saved receipt; the same `id` with different terms fails.
 
-| Method              | Parameters                   | Result                                                                                                         |
-| ------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `wallet.info`       | `{}`                         | Public wallet state: `address`, `channelId`, `chainId`, `networkName`, `bankroll`, `recommendedStake` and more |
-| `game.requestFunds` | `{amount?, reason?}`         | `{funded, amount, balance, pending}` after the player's decision. `reason` is at most 140 characters           |
-| `game.bet`          | `{id, stake, prizes}`        | A verified receipt: settled, or rejected                                                                       |
-| `game.bet` (hosted) | `{id, stake, prizes, round}` | `{status: 'pending'}` while the round's host keeps it open, then the verified receipt                          |
-| `game.payment`      | `{id, amount}`               | A verified receipt. Pays the casino's bankroll; no outcome, no commission                                      |
-| `game.transfer`     | `{id, amount}`               | Pays the manifest's `developer` address only. Pending, then a verified receipt                                 |
-| `game.receipt`      | `{id}`                       | The outcome of an earlier operation by your `id`, or `null`                                                    |
-| `game.cancel`       | `{id}`                       | Gives up a seat in a round its host has not closed; or the bet's result if it was                              |
-| `game.buyIn`        | `{id, table, amount}`        | Between players: put money on a table its host pays out; the verified receipt                                  |
-| `game.table`        | `{tableId}`                  | `{tableId, bought, collected}`: what this wallet put on a table and has collected from it                      |
-| `game.identify`     | `{nonce}`                    | The wallet's signed word, for your own server, about who is playing                                            |
+| Method              | Parameters                   | Result                                                                                               |
+| ------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `wallet.hello`      | `{}`                         | `{methods, asset: {id, symbol, decimals}, chainId}`                                                  |
+| `wallet.info`       | `{}`                         | `{address, channelId, chainId, bankroll, recommendedStake}`, and nothing else of the wallet          |
+| `game.requestFunds` | `{amount?, reason?}`         | `{funded, amount, balance, pending}` after the player's decision. `reason` is at most 140 characters |
+| `game.bet`          | `{id, stake, prizes}`        | A verified receipt: settled, or rejected                                                             |
+| `game.bet` (hosted) | `{id, stake, prizes, round}` | `{status: 'pending'}` while the round's host keeps it open, then the verified receipt                |
+| `game.payment`      | `{id, amount}`               | A verified receipt. Pays the casino's bankroll; no outcome, no commission                            |
+| `game.transfer`     | `{id, amount}`               | Pays the manifest's `developer` address only. Pending, then a verified receipt                       |
+| `game.receipt`      | `{id}`                       | The outcome of an earlier operation by your `id`, or `null`                                          |
+| `game.cancel`       | `{id}`                       | Gives up a seat in a round its host has not closed; or the bet's result if it was                    |
+| `game.buyIn`        | `{id, table, amount}`        | Between players: put money on a table its host pays out; the verified receipt                        |
+| `game.table`        | `{tableId}`                  | `{tableId, bought, collected}`: what this wallet put on a table and has collected from it            |
+| `game.identify`     | `{nonce}`                    | The wallet's signed word, for your own server, about who is playing                                  |
 
 One event arrives unasked: `game.balance` with `{balance, pending}`.
 
-The SDK wraps these as `HookedIn.call`, `HookedIn.balance()`, `HookedIn.onBalance(listener)`, `HookedIn.requestFunds(options)` and `HookedIn.receipt(id)`. It also has `HookedIn.initializeGame` for read-only startup, `HookedIn.storageScope(info)` for a storage key unique to the page, player and channel, and `parseEth`, `formatEth` and `stepStake` for stake fields.
+The SDK wraps these as `HookedIn.call`, `HookedIn.balance()`, `HookedIn.onBalance(listener)`, `HookedIn.requestFunds(options)` and `HookedIn.receipt(id)`. It also has `HookedIn.initializeGame` for read-only startup, `HookedIn.storageScope(info)` for a storage key unique to the page, player and channel, and `parseAmount`, `formatAmount` and `stepStake` for stake fields.
 
 A receipt, as the game sees it:
 
@@ -159,7 +161,7 @@ A receipt, as the game sees it:
   status, // 'signed' when settled, 'rejected' when the casino declined
   verified, // true once the wallet has checked the evidence
   outcome, // the round's 64-bit outcome, as a decimal string
-  payout, // what the prizes paid, in wei
+  payout, // what the prizes paid
   operationId,
   reason, // present on a rejection
 }
@@ -176,8 +178,8 @@ import { HookedIn } from '@hookedin/game-sdk/sdk';
 
 const SPACE = 1n << 64n;
 
-async function flip(stakeEth: string) {
-  const stake = HookedIn.parseEth(stakeEth); // '0.000001' -> '1000000000000'
+async function flip(stakeText: string) {
+  const stake = HookedIn.parseAmount(stakeText); // '0.000001' -> '1000000000000'
 
   // 1. Make sure the game may risk the stake. The player decides in the wallet's dialog.
   const { balance } = await HookedIn.balance();
@@ -246,7 +248,7 @@ const round = new RoundClient(HookedIn, setup => ({
 }));
 
 await round.restore(); // on startup: reload a saved round, resolve a lost reply
-let state = await round.start({ stake: HookedIn.parseEth('0.000001') });
+let state = await round.start({ stake: HookedIn.parseAmount('0.000001') });
 state = await round.action('flip');
 // state.nodeId, state.terminal, state.cash, state.actions, state.events, state.settlement
 ```
@@ -292,7 +294,7 @@ Keep the probe around in a branch. It is the fastest way to reproduce a wallet r
 
 `npm run build` writes `dist/`: plain static files. This repository deploys itself to Cloudflare whenever `main` is pushed, through [.github/workflows/deploy.yml](.github/workflows/deploy.yml) and [wrangler.jsonc](wrangler.jsonc). In your fork:
 
-1. In [wrangler.jsonc](wrangler.jsonc), change `name`, and replace `routes` with a domain on your Cloudflare account or remove it. Without `routes` the game is served at `<name>.<your-subdomain>.workers.dev`.
+1. In [wrangler.jsonc](wrangler.jsonc), change `name`, and add `routes` for a domain on your Cloudflare account. Without `routes` the game is served at `<name>.<your-subdomain>.workers.dev`.
 2. In the repository's **Settings → Secrets and variables → Actions**, add the secret `CLOUDFLARE_API_TOKEN` (create it in Cloudflare from the **Edit Cloudflare Workers** template) and the variables `CLOUDFLARE_ACCOUNT_ID` and `HOOKEDIN_DEVELOPER`, the address that earns the game's commission.
 3. Push to `main`. The workflow tests, builds and publishes.
 
