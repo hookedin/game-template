@@ -23,21 +23,15 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
     method: 'game.bet',
     params: { id: operationId(), stake: stake(), prizes: [half()] },
   }),
-  // A bet on a host's round. Paste the host's real `round`; this placeholder is never played, so the
-  // wallet returns the signed entry and `game.cancel` withdraws it.
+  // A bet on a round a host opened. Paste the host's real `round`: this placeholder is no round at
+  // the casino, so the wallet's request to join it is refused and `game.cancel` withdraws the bet.
   shared: () => ({
     method: 'game.bet',
     params: {
       id: operationId(),
       stake: stake(),
       prizes: [half()],
-      round: {
-        owner: '0x' + '11'.repeat(20),
-        epoch: 1,
-        index: 0,
-        roundHead: '0x' + '22'.repeat(32),
-        seed: '0x' + '33'.repeat(32),
-      },
+      round: { id: '0x' + '22'.repeat(32), seed: '0x' + '33'.repeat(32) },
     },
   }),
   cancel: () => ({ method: 'game.cancel', params: { id: lastId || operationId() } }),

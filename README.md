@@ -11,7 +11,7 @@ This README is the developer guide. The reference for every detail is [docs/game
 - A game is a **static web page** on your own host. The wallet at [play.hookedin.com](https://play.hookedin.com) loads it in a sandboxed iframe.
 - The game owns its rules, its presentation and its saved state. The wallet owns the player's keys, balance and settlement. The game never sees a key and never signs anything.
 - The game asks the wallet to place **bets**. A bet is a stake plus 1 to 64 **prizes**. A prize is `{ rangeStart, rangeEnd, payout }`: it pays when the round's outcome, a uniform integer below 2^64, falls in `[rangeStart, rangeEnd)`. Its probability is its width over 2^64. Prizes may overlap, and then they add. An outcome in no prize pays nothing.
-- The outcome comes from a hash-chain preimage the casino committed to in advance, combined with a seed the player's wallet draws afterwards. The wallet verifies the result before your game hears about it.
+- The outcome comes from a secret the casino committed to in advance, combined with a seed the player's wallet draws afterwards. The wallet verifies the result before your game hears about it.
 - You earn **half the commission** on every bet placed through your game.
 
 Anything you can express as prize ranges is a game. A coin flip is one prize. A Plinko board is a prize per bucket. A slot is a prize per distinct payout. A multi-step game such as blackjack is one bet per step.
@@ -67,13 +67,13 @@ The build is the SDK's `hookedin-game` command. It bundles `src/game.ts` with es
 }
 ```
 
-| Field         | Required | Meaning                                                                                                                                                                 |
-| ------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`        | yes      | Shown in the wallet. At most 80 characters                                                                                                                              |
-| `entry`       | yes      | The page to frame, relative to the manifest or absolute                                                                                                                 |
-| `developer`   | yes      | The address that earns the game's commission. Not the zero address. `HOOKEDIN_DEVELOPER` overrides it at build time                                                     |
-| `description` | no       | Shown with the game. The wallet shows at most 220 characters                                                                                                            |
-| `id`          | no       | Lowercase letters, digits and hyphens, starting with a letter or digit; at most 32 characters; not `custom`. Gives a catalog game the wallet URL `/games/<id>`          |
+| Field         | Required | Meaning                                                                                                                                                        |
+| ------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`        | yes      | Shown in the wallet. At most 80 characters                                                                                                                     |
+| `entry`       | yes      | The page to frame, relative to the manifest or absolute                                                                                                        |
+| `developer`   | yes      | The address that earns the game's commission. Not the zero address. `HOOKEDIN_DEVELOPER` overrides it at build time                                            |
+| `description` | no       | Shown with the game. The wallet shows at most 220 characters                                                                                                   |
+| `id`          | no       | Lowercase letters, digits and hyphens, starting with a letter or digit; at most 32 characters; not `custom`. Gives a catalog game the wallet URL `/games/<id>` |
 
 The manifest must be at most 16 KB and served with CORS headers. Any manifest, listed or not, is linkable as `https://play.hookedin.com/games/custom?manifest=<encoded manifest URL>`. Opening a link loads the game; it grants no spending authority. Some reference manifests also carry a `template` field; the wallet does not read it.
 
@@ -137,11 +137,11 @@ Amounts are decimal wei strings. The `id` inside a financial request is your dur
 | `wallet.info`       | `{}`                         | Public wallet state: `address`, `channelId`, `chainId`, `networkName`, `bankroll`, `recommendedStake` and more |
 | `game.requestFunds` | `{amount?, reason?}`         | `{funded, amount, balance, pending}` after the player's decision. `reason` is at most 140 characters           |
 | `game.bet`          | `{id, stake, prizes}`        | A verified receipt: settled, or rejected                                                                       |
-| `game.bet` (hosted) | `{id, stake, prizes, round}` | `{status: 'pending', entry}` to give to a round host, later the verified receipt                               |
+| `game.bet` (hosted) | `{id, stake, prizes, round}` | `{status: 'pending'}` while the round's host keeps it open, then the verified receipt                          |
 | `game.payment`      | `{id, amount}`               | A verified receipt. Pays the casino's bankroll; no outcome, no commission                                      |
 | `game.transfer`     | `{id, amount}`               | Pays the manifest's `developer` address only. Pending, then a verified receipt                                 |
 | `game.receipt`      | `{id}`                       | The outcome of an earlier operation by your `id`, or `null`                                                    |
-| `game.cancel`       | `{id}`                       | Withdraws a hosted bet or a stake nobody settled; or its result if already played                              |
+| `game.cancel`       | `{id}`                       | Gives up a seat in a round its host has not closed; or the bet's result if it was                              |
 | `game.buyIn`        | `{id, table, amount}`        | Between players: put money on a table its host pays out; the verified receipt                                  |
 | `game.table`        | `{tableId}`                  | `{tableId, bought, collected}`: what this wallet put on a table and has collected from it                      |
 | `game.identify`     | `{nonce}`                    | The wallet's signed word, for your own server, about who is playing                                            |
@@ -317,8 +317,8 @@ In the template this only type-checks. When your game has rules, test them in No
 ## Fairness, for your players
 
 - The game never holds keys. The wallet signs each bet whole: the stake and every prize.
-- The casino commits to its hash chain before the wallet draws its seed. The outcome is the low 64 bits of `keccak256(abi.encode(keccak256("HOOKEDIN/OUTCOME"), seed, preimage))`.
-- The wallet checks the revealed preimage against the commitment, recomputes the outcome and the payout, and only then tells the game.
+- Every bet is on a round, named by the hash of a secret the casino fixed before the wallet drew its seed. The outcome is the low 64 bits of `keccak256(abi.encode(keccak256("HOOKEDIN/OUTCOME"), seed, secret))`.
+- The wallet checks the revealed secret against the round it signed, recomputes the outcome and the payout, and only then tells the game.
 - The game never sees future entropy. It learns an outcome only from a completed receipt.
 
 The wallet verifies each bet. It does not certify your advertised rules, odds or animations. Publish your source, state your return, prove it in a test, and draw what the player sees from the verified outcome.
