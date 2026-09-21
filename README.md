@@ -67,13 +67,13 @@ The build is the SDK's `hookedin-game` command. It bundles `src/game.ts` with es
 }
 ```
 
-| Field         | Required | Meaning                                                                                                                                                        |
-| ------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`        | yes      | Shown in the wallet. At most 80 characters                                                                                                                     |
-| `entry`       | yes      | The page to frame, relative to the manifest or absolute                                                                                                        |
-| `developer`   | yes      | The address that earns the game's commission. Not the zero address. `HOOKEDIN_DEVELOPER` overrides it at build time                                            |
-| `description` | no       | Shown with the game. The wallet shows at most 220 characters                                                                                                   |
-| `id`          | no       | Lowercase letters, digits and hyphens, starting with a letter or digit; at most 32 characters; not `custom`. Gives a catalog game the wallet URL `/games/<id>` |
+| Field         | Required | Meaning                                                                                                                                                           |
+| ------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`        | yes      | Shown in the wallet. At most 80 characters                                                                                                                        |
+| `entry`       | yes      | The page to frame, relative to the manifest or absolute                                                                                                           |
+| `developer`   | yes      | The address that earns the game's commission. Not the zero address. `HOOKEDIN_DEVELOPER` overrides it at build time                                               |
+| `description` | no       | Shown with the game. The wallet shows at most 220 characters                                                                                                      |
+| `id`          | no       | Lowercase letters, digits and hyphens, starting with a letter or digit; at most 32 characters. The name the casino's local launcher serves and publishes it under |
 
 The manifest must be at most 16 KB and served with CORS headers. Any manifest, listed or not, is linkable as `https://play.hookedin.com/games/custom?manifest=<encoded manifest URL>`. Opening a link loads the game; it grants no spending authority. Some reference manifests also carry a `template` field; the wallet does not read it.
 
@@ -136,7 +136,7 @@ A wallet plays with the network's ETH or with the casino's test coins, and `wall
 | Method              | Parameters                   | Result                                                                                               |
 | ------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `wallet.hello`      | `{}`                         | `{methods, asset: {id, symbol, decimals}, chainId}`                                                  |
-| `wallet.info`       | `{}`                         | `{address, channelId, chainId, bankroll, recommendedStake}`, and nothing else of the wallet          |
+| `wallet.info`       | `{}`                         | `{uname, alias, chainId, bankroll, recommendedStake}`, and nothing else of the player                |
 | `game.requestFunds` | `{amount?, reason?}`         | `{funded, amount, balance, pending}` after the player's decision. `reason` is at most 140 characters |
 | `game.bet`          | `{id, stake, prizes}`        | A verified receipt: settled, or rejected                                                             |
 | `game.bet` (hosted) | `{id, stake, prizes, round}` | `{status: 'pending'}` while the round's host keeps it open, then the verified receipt                |
@@ -150,7 +150,7 @@ A wallet plays with the network's ETH or with the casino's test coins, and `wall
 
 One event arrives unasked: `game.balance` with `{balance, pending}`.
 
-The SDK wraps these as `HookedIn.call`, `HookedIn.balance()`, `HookedIn.onBalance(listener)`, `HookedIn.requestFunds(options)` and `HookedIn.receipt(id)`. It also has `HookedIn.initializeGame` for read-only startup, `HookedIn.storageScope(info)` for a storage key unique to the page, player and channel, and `parseAmount`, `formatAmount` and `stepStake` for stake fields.
+The SDK wraps these as `HookedIn.call`, `HookedIn.balance()`, `HookedIn.onBalance(listener)`, `HookedIn.requestFunds(options)` and `HookedIn.receipt(id)`. It also has `HookedIn.initializeGame` for read-only startup, `HookedIn.storageScope(info)` for a storage key unique to the page, player and asset (on the player's permanent name), and `parseAmount`, `formatAmount` and `stepStake` for stake fields.
 
 A receipt, as the game sees it:
 
@@ -213,7 +213,7 @@ Rules that make this safe:
 - **A rejection is not a loss.** `status: 'rejected'` with `verified: true` proves the bet was cancelled with the balance unchanged. Offer the same bet again under a fresh `id`. A timeout or a generic error proves nothing: retry the exact request with the same `id`.
 - **Show the verified outcome.** Compute what the player sees from `receipt.outcome`: which bucket, which card, which reel stop. Then the picture and the money cannot disagree, and your page needs no randomness of its own.
 - **Leave the casino an edge.** The casino admits a bet only if its bankroll can carry it, and bigger prizes need more edge. Check a bet before offering it with `admits(bankroll, bet)` from `@hookedin/game-sdk/admits`, which is the casino's own rule; `wallet.info` reports `bankroll`. The reference games check against half the reported bankroll so that ordinary movement does not invalidate the bet.
-- **Scope your storage.** Key saved state by page, chain, player and channel (`HookedIn.storageScope(info)`), so games that share a host and accounts that share a browser do not read each other's rounds.
+- **Scope your storage.** Key saved state by page, chain, player and asset (`HookedIn.storageScope(info)`), so games that share a host and accounts that share a browser do not read each other's rounds.
 
 [game-plinko](https://github.com/hookedin/game-plinko) is the complete version of this pattern: `src/drop.ts` there is about 150 lines and is the part to copy.
 
@@ -306,7 +306,7 @@ Your game is then playable by anyone who loads `https://your-host/manifest.json`
 
 ## Get listed
 
-The wallet's Games page is built from [catalog.json](https://github.com/hookedin/play/blob/main/catalog.json) in the [hookedin/play](https://github.com/hookedin/play) repository. Open an issue or a pull request there that adds your manifest URL. A listed game with an `id` also gets the short link `/games/<id>`.
+Publish it yourself: in the wallet, open **My wallet** and, under your name, give the game a name and this manifest's URL. It is then at `@<your name>/<game name>` for anyone with a wallet. The library the casino ships with is what `@hookedin` publishes, from [catalog.json](https://github.com/hookedin/play/blob/main/catalog.json) in the [hookedin/play](https://github.com/hookedin/play) repository; open an issue or a pull request there to be in it.
 
 ## Tests
 
