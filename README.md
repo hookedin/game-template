@@ -51,6 +51,7 @@ The probe's `50% to double` preset has no house edge, so expect the casino to de
 | [src/index.html](src/index.html)       | The page. It loads `./shared.css`, `./style.css` and `./game.js`                            |
 | [src/game.ts](src/game.ts)             | The entry point, bundled to `dist/game.js`. Here: the probe's presets, send button and log  |
 | [src/style.css](src/style.css)         | Page styles, on top of the SDK's `shared.css`                                               |
+| [test/bet.test.ts](test/bet.test.ts)   | A first test: real signed bets through the real wallet against an in-memory casino          |
 | [package.json](package.json)           | Scripts `build`, `dev`, `typecheck`, `test`, `format`; one dependency, `@hookedin/game-sdk` |
 
 The build is the SDK's `hookedin-game` command. It bundles `src/game.ts` with esbuild, copies everything in `src/` that is not TypeScript, and adds `shared.css`, the brand mark and a `_headers` file. Add more `.ts` modules, images or fonts under `src/` as you need them.
@@ -144,9 +145,6 @@ A wallet plays with the network's ETH or with the casino's test coins, and `wall
 | `game.transfer`     | `{id, amount}`               | Pays the manifest's `developer` address only. Pending, then a verified receipt                       |
 | `game.receipt`      | `{id}`                       | The outcome of an earlier operation by your `id`, or `null`                                          |
 | `game.cancel`       | `{id}`                       | Gives up a seat in a round its host has not closed; or the bet's result if it was                    |
-| `game.buyIn`        | `{id, table, amount}`        | Between players: put money on a table its host pays out; the verified receipt                        |
-| `game.table`        | `{tableId}`                  | `{tableId, bought, collected}`: what this wallet put on a table and has collected from it            |
-| `game.identify`     | `{nonce}`                    | The wallet's signed word, for your own server, about who is playing                                  |
 
 One event arrives unasked: `game.balance` with `{balance, pending}`.
 
@@ -265,10 +263,6 @@ The graph must be finite and acyclic, with exact rational probabilities that sum
 
 Reference games built this way: [game-dice](https://github.com/hookedin/game-dice) (one step), [game-mines](https://github.com/hookedin/game-mines) (stop when you like), [game-samson](https://github.com/hookedin/game-samson) (a slot: one step, dozens of prizes) and [game-blackjack](https://github.com/hookedin/game-blackjack) (up to dozens of steps, with a precomputed price table). The theory is in [sequential games built from native bets](https://github.com/hookedin/game-sdk/blob/main/docs/sequential-games.md).
 
-## Player versus player
-
-Players can play each other at a **table**: the casino holds what they buy in, and a server you run, the table's host, signs who is paid out of it. The page uses `game.buyIn` and `game.identify`; the server uses the [host kit](https://github.com/hookedin/game-sdk/blob/main/src/host.ts), and ships with the page as one Cloudflare Worker. [poker](https://github.com/hookedin/poker) is the full reference and [game-rps](https://github.com/hookedin/game-rps) the small one.
-
 ## Commission
 
 The casino admits a bet only if it leaves the bankroll a sound wager. Whatever edge a bet has beyond that is taken as commission, and it is split equally: half to the `developer` address the wallet signs into the bet, half to the casino.
@@ -277,7 +271,8 @@ The casino admits a bet only if it leaves the bankroll a sound wager. Whatever e
 - It is never an extra debit to the player. The player's stake and prizes are exactly what was signed.
 - It depends on the bet's edge and on the casino's bankroll. A zero-edge bet earns nothing and is normally declined.
 - The wallet takes the address from your manifest. The game page cannot change it.
-- In a match, the commission comes from the pot bet's edge, or from the rake when the pot is the plain stakes.
+
+**How to collect it.** The tally is held for the `developer` address itself. Open an ordinary HookedIn wallet from that address and its wallet page shows what your games have earned; the wallet collects what is due by itself, into that address's channel. Nobody at the casino approves or sends anything. So put an address you can open a wallet from in your manifest: commission owed to an address that never opens a channel is never collected.
 
 The arithmetic is in [pricing and commission](https://github.com/hookedin/play/blob/main/docs/economics.md).
 
@@ -314,7 +309,9 @@ Publish it yourself: in the wallet, open **My wallet** and, under your name, giv
 npm test
 ```
 
-In the template this only type-checks. When your game has rules, test them in Node against the real wallet: `@hookedin/play/testing/game-wallet.ts` builds the actual wallet code with an in-memory casino, so a test places real signed bets and checks real balances. Run tests with `node --import tsx --test test/*.test.ts`; the SDK ships TypeScript, and Node does not strip types inside `node_modules` by itself. [game-plinko's test](https://github.com/hookedin/game-plinko/blob/main/test/plinko.test.ts) is a good model: it proves the return from the signed prizes, then drops balls through the wallet and recovers a lost reply.
+This type-checks and runs everything in `test/`. [test/bet.test.ts](test/bet.test.ts) is where to start: `@hookedin/play/testing/game-wallet.ts` builds the actual wallet code with an in-memory casino, so the test places real signed bets and checks real balances. Replace its bet with your own rules and prove the return you advertise.
+
+The runner is `node --import tsx --test test/*.test.ts`, because the SDK ships TypeScript and Node does not strip types inside `node_modules` by itself. [game-plinko's test](https://github.com/hookedin/game-plinko/blob/main/test/plinko.test.ts) is the fuller model: it proves the return from the signed prizes, then drops balls through the wallet and recovers a lost reply.
 
 ## Fairness, for your players
 

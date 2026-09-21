@@ -7,7 +7,8 @@ const output = $('probe-output'),
   request = $<HTMLTextAreaElement>('probe-request');
 let lastId = '';
 const log = (title: string, value: unknown) => {
-  const line = `${new Date().toISOString().slice(11, 23)} ${title}\n${JSON.stringify(value, null, 2)}\n\n`;
+  // Local time, so this log lines up with the wallet's developer log beside it.
+  const line = `${new Date().toLocaleTimeString([], { hour12: false })} ${title}\n${JSON.stringify(value, null, 2)}\n\n`;
   output.textContent = line + (output.textContent === 'Replies appear here, newest first.' ? '' : output.textContent);
 };
 const stake = () => $<HTMLInputElement>('probe-stake').value.trim();
