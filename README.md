@@ -90,7 +90,7 @@ So build a table you are happy to be measured on, and pin its floor in a test ra
 
 The manifest must be at most 16 KB and served with CORS headers. Any manifest, listed or not, is linkable as `https://play.hookedin.com/games/custom?manifest=<encoded manifest URL>`. Opening a link loads the game; it grants no spending authority.
 
-The developer address, the manifest URL and the entry URL together identify your game to the wallet.
+Your game is you and the name you publish it under: publish it from the account `src/manifest.json` names as `developer`, and the wallet refuses a published game whose manifest names anyone else. Its URL is only where it is served, so it keeps its bets and its players' receipts when it moves. A manifest loaded without being published goes by its URL instead.
 
 ## The sandbox
 
@@ -169,9 +169,10 @@ A receipt, as the game sees it:
   kind,
   status, // 'signed' when settled, 'rejected' when the casino declined
   verified, // true once the wallet has checked the evidence
+  stake, // a bet's stake and prizes, as they played
+  prizes,
   outcome, // the round's 64-bit outcome, as a decimal string
   payout, // what the prizes paid
-  operationId,
   reason, // present on a rejection
 }
 ```
