@@ -63,7 +63,6 @@ The build is the SDK's `hookedin-game` command. It bundles `src/game.ts` with es
   "id": "my-game",
   "name": "My game",
   "description": "One or two sentences shown on the game's card.",
-  "return": 99,
   "entry": "./index.html",
   "developer": "0xYourAddress"
 }
@@ -75,17 +74,16 @@ The build is the SDK's `hookedin-game` command. It bundles `src/game.ts` with es
 | `entry`       | yes      | The page to frame, relative to the manifest or absolute                                                                                                           |
 | `developer`   | yes      | The address that earns the game's commission. Not the zero address. `HOOKEDIN_DEVELOPER` overrides it at build time                                               |
 | `description` | no       | Shown with the game. The wallet shows at most 220 characters                                                                                                      |
-| `return`      | no       | The least any one of your bets pays back, as a percentage with up to four decimals. The wallet holds every bet to it                                              |
 | `rounds`      | no       | `true` when your game bets on rounds your own server opens                                                                                                        |
 | `id`          | no       | Lowercase letters, digits and hyphens, starting with a letter or digit; at most 32 characters. The name the casino's local launcher serves and publishes it under |
 
-### State what you pay back
+### What you pay back is measured, not stated
 
-`return` is the one thing about your game the wallet can check, so it does. Before it signs a bet it works out the bet's exact return — every prize's width against its payout, over the stake — and refuses anything below what you stated, with code `below-return`. It also refuses `game.payment` and `game.transfer` from a game that states a return, because money that pays nothing back cannot meet one. The player sees your number on the game's card; a game that states nothing shows **No stated return** instead, which is the honest label when a round is played over several bets and no single one's return is the player's.
+There is no manifest field for a return, and you should not put your number anywhere else either. A game cannot prove what it pays back: nothing bounds how often it wagers the money it holds, so even a game whose every bet returns 99% can churn a balance to nothing, and a stated figure reads as a promise it is not keeping.
 
-State a number you can prove, and prove it in a test. Two things round against you: prize ranges are whole outcomes and payouts are whole units, so a table that returns exactly 99% at ordinary stakes returns less at dust ones — a Plinko board pays back 38% at a stake of one wei. `meetsReturn(bet, statedReturn(99))` from `@hookedin/play/protocol/risk.ts` is the wallet's own check; [game-plinko's test](https://github.com/hookedin/game-plinko/blob/main/test/plinko.test.ts) runs it over every board at every stake.
+What players see instead is measured from the bets themselves. Before the wallet signs a bet it works out that bet's exact return — every prize's width against its payout, over the stake — and shows it beside the bet in the player's history; the casino publishes the same figure for every bet placed in your game, so anyone can look up what your game has really paid back. `betReturn(bet)` from `@hookedin/play/protocol/risk.ts` is that computation, in millionths of the stake.
 
-The probe states no return, because it exists to send payments and transfers by hand. Your game should state one.
+So build a table you are happy to be measured on, and pin its floor in a test rather than in your manifest. Two things round against you: prize ranges are whole outcomes and payouts are whole units, so a table that returns exactly 99% at ordinary stakes returns less at dust ones — a Plinko board pays back 38% at a stake of one wei. [game-plinko's test](https://github.com/hookedin/game-plinko/blob/main/test/plinko.test.ts) runs the check over every board at every stake.
 
 The manifest must be at most 16 KB and served with CORS headers. Any manifest, listed or not, is linkable as `https://play.hookedin.com/games/custom?manifest=<encoded manifest URL>`. Opening a link loads the game; it grants no spending authority. Some reference manifests also carry a `template` field; the wallet does not read it.
 
@@ -331,7 +329,7 @@ The runner is `node --import tsx --test test/*.test.ts`, because the SDK ships T
 - The wallet checks the revealed secret against the round it signed, recomputes the outcome and the payout, and only then tells the game.
 - The game never sees future entropy. It learns an outcome only from a completed receipt.
 
-The wallet verifies each bet, and the `return` your manifest states. It does not certify your rules, your animations, or that a funded game finishes. Publish your source, state your return, prove it in a test, and draw what the player sees from the verified outcome.
+The wallet verifies each bet and measures what it pays back. It does not certify your rules, your animations, or that a funded game finishes. Publish your source, prove your table's floor in a test, and draw what the player sees from the verified outcome.
 
 ## License
 
