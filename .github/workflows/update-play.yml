@@ -1,6 +1,7 @@
-# Every six hours, or on demand: take the newest game SDK. If anything moved and the tests pass, commit the lockfile
-# and release the game. A push made by a workflow starts no other workflow, so Deploy is started here.
-name: Update SDK
+# Every six hours, or on demand: take play's newest main, which carries the game SDK. If anything moved and the tests
+# pass, commit the lockfile and release the game. A push made by a workflow starts no other workflow, so Deploy is
+# started here.
+name: Update play
 on:
   schedule:
     - cron: '17 */6 * * *'
@@ -14,8 +15,8 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -25,12 +26,10 @@ jobs:
         run: git diff --quiet package-lock.json || echo moved=true >> "$GITHUB_OUTPUT"
       - if: steps.lock.outputs.moved
         run: npm test && npm run build
-        env:
-          HOOKEDIN_DEVELOPER: ${{ vars.HOOKEDIN_DEVELOPER }}
       - if: steps.lock.outputs.moved
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Update the game SDK' package-lock.json
+          git commit -m 'Update play' package-lock.json
           git push
           gh workflow run deploy.yml

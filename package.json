@@ -17,10 +17,9 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@hookedin/game-sdk": "git+https://github.com/hookedin/game-sdk.git#main"
+    "@hookedin/play": "git+https://github.com/hookedin/play.git#main"
   },
   "devDependencies": {
-    "@hookedin/play": "git+https://github.com/hookedin/play.git#main",
     "@types/node": "24.13.5",
     "prettier": "3.9.8",
     "tsx": "4.23.13",

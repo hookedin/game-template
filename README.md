@@ -4,7 +4,7 @@ Start here to build a game for [HookedIn](https://play.hookedin.com).
 
 This repository is a GitHub template. What it contains is the **bridge probe**: a minimal page that sends every wallet bridge method by hand and prints each raw reply. It is a working HookedIn game in four source files, and the quickest way to see what the wallet says to a bet, a rejection, a funding request or a lost reply. Replace the probe's page with your game and keep the rest.
 
-This README is the developer guide. The reference for every detail is [docs/game-sdk.md](https://github.com/hookedin/game-sdk/blob/main/docs/game-sdk.md) in the SDK.
+This README is the developer guide. The reference for every detail is [docs/game-sdk.md](https://github.com/hookedin/play/blob/main/sdk/docs/game-sdk.md) in the SDK.
 
 ## The model in one minute
 
@@ -26,7 +26,12 @@ Create your repository with **Use this template** on GitHub, or clone directly:
 git clone https://github.com/hookedin/game-template my-game
 cd my-game
 npm install
-HOOKEDIN_DEVELOPER=0xYourAddress npm run dev
+```
+
+Put your own address in `developer` in [src/manifest.json](src/manifest.json): the file ships with `0xcD0C778307e7D3Da6D3D23440285050f911840d4`, and whatever address is there earns the game's commission. Then:
+
+```sh
+npm run dev
 ```
 
 `npm run dev` builds the game into `dist/` and serves it at `http://127.0.0.1:4185` (set `PORT` to move it). Then:
@@ -35,26 +40,24 @@ HOOKEDIN_DEVELOPER=0xYourAddress npm run dev
 2. Go to **Games**, choose **Add a custom game** and load `http://127.0.0.1:4185/manifest.json`.
 3. Press **Add funds** in the probe, pick a preset such as `game.bet · 50% to double`, edit the JSON if you like, and press **Send**. Every request, reply and `game.balance` event is printed, newest first.
 
-The wallet refuses a manifest whose `developer` is the zero address, which is what `src/manifest.json` ships with. Set `HOOKEDIN_DEVELOPER` as above, or edit the file.
-
 A game served from your own machine works against any HookedIn wallet and casino, because the wallet loads the manifest and the page from your browser. Testing against a fully local stack needs the casino server, which is private. Most developers should use the public Sepolia deployment at play.hookedin.com.
 
-Re-run `npm run dev` after a change; it rebuilds on start.
+Reload after a change: every page load rebuilds the game.
 
 The probe's `50% to double` preset has no house edge, so expect the casino to decline it. That is useful: it shows you a verified rejection receipt. Narrow the range (see the example below) for a bet the casino accepts.
 
 ## What is in the repository
 
-| File                                   | What it holds                                                                               |
-| -------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [src/manifest.json](src/manifest.json) | What the wallet reads to load the game                                                      |
-| [src/index.html](src/index.html)       | The page. It loads `./shared.css`, `./style.css` and `./game.js`                            |
-| [src/game.ts](src/game.ts)             | The entry point, bundled to `dist/game.js`. Here: the probe's presets, send button and log  |
-| [src/style.css](src/style.css)         | Page styles, on top of the SDK's `shared.css`                                               |
-| [test/bet.test.ts](test/bet.test.ts)   | A first test: real signed bets through the real wallet against an in-memory casino          |
-| [package.json](package.json)           | Scripts `build`, `dev`, `typecheck`, `test`, `format`; one dependency, `@hookedin/game-sdk` |
+| File                                   | What it holds                                                                              |
+| -------------------------------------- | ------------------------------------------------------------------------------------------ |
+| [src/manifest.json](src/manifest.json) | What the wallet reads to load the game                                                     |
+| [src/index.html](src/index.html)       | The page. It loads `./shared.css`, `./style.css` and `./game.js`                           |
+| [src/game.ts](src/game.ts)             | The entry point, bundled to `dist/game.js`. Here: the probe's presets, send button and log |
+| [src/style.css](src/style.css)         | Page styles, on top of the SDK's `shared.css`                                              |
+| [test/bet.test.ts](test/bet.test.ts)   | A first test: real signed bets through the real wallet against an in-memory casino         |
+| [package.json](package.json)           | Scripts `build`, `dev`, `typecheck`, `test`, `format`; one dependency, `@hookedin/play`    |
 
-The build is the SDK's `hookedin-game` command. It bundles `src/game.ts` with esbuild, copies everything in `src/` that is not TypeScript, and adds `shared.css`, the brand mark and a `_headers` file. Add more `.ts` modules, images or fonts under `src/` as you need them.
+The build is the `hookedin-game` command that `@hookedin/play` installs. It bundles `src/game.ts` with esbuild, copies everything in `src/` that is not TypeScript, and adds `shared.css`, the brand mark and a `_headers` file. Add more `.ts` modules, images or fonts under `src/` as you need them.
 
 ## The manifest
 
@@ -68,14 +71,14 @@ The build is the SDK's `hookedin-game` command. It bundles `src/game.ts` with es
 }
 ```
 
-| Field         | Required | Meaning                                                                                                                                                           |
-| ------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`        | yes      | Shown in the wallet. At most 80 characters                                                                                                                        |
-| `entry`       | yes      | The page to frame, relative to the manifest or absolute                                                                                                           |
-| `developer`   | yes      | The address that earns the game's commission. Not the zero address. `HOOKEDIN_DEVELOPER` overrides it at build time                                               |
-| `description` | no       | Shown with the game. The wallet shows at most 220 characters                                                                                                      |
-| `rounds`      | no       | `true` when your game bets on rounds your own server opens                                                                                                        |
-| `id`          | no       | Lowercase letters, digits and hyphens, starting with a letter or digit; at most 32 characters. The name the casino's local launcher serves and publishes it under |
+| Field         | Required | Meaning                                                                                       |
+| ------------- | -------- | --------------------------------------------------------------------------------------------- |
+| `name`        | yes      | Shown in the wallet. At most 80 characters                                                    |
+| `entry`       | yes      | The page to frame, relative to the manifest or absolute                                       |
+| `developer`   | yes      | The address that earns the game's commission. Not the zero address                            |
+| `description` | no       | Shown with the game. The wallet shows at most 220 characters                                  |
+| `rounds`      | no       | `true` when your game bets on rounds your own server opens                                    |
+| `id`          | no       | Lowercase letters, digits and hyphens, starting with a letter or digit; at most 32 characters |
 
 ### What you pay back is measured, not stated
 
@@ -83,9 +86,9 @@ There is no manifest field for a return, and you should not put your number anyw
 
 What players see instead is measured from the bets themselves. Before the wallet signs a bet it works out that bet's exact return — every prize's width against its payout, over the stake — and shows it beside the bet in the player's history; the casino publishes the same figure for every bet placed in your game, so anyone can look up what your game has really paid back. `betReturn(bet)` from `@hookedin/play/protocol/risk.ts` is that computation, in millionths of the stake.
 
-So build a table you are happy to be measured on, and pin its floor in a test rather than in your manifest. Two things round against you: prize ranges are whole outcomes and payouts are whole units, so a table that returns exactly 99% at ordinary stakes returns less at dust ones — a Plinko board pays back 38% at a stake of one wei. [game-plinko's test](https://github.com/hookedin/game-plinko/blob/main/test/plinko.test.ts) runs the check over every board at every stake.
+So build a table you are happy to be measured on, and pin its floor in a test rather than in your manifest. Two things round against you: prize ranges are whole outcomes and payouts are whole units, so a table that returns exactly 99% at ordinary stakes returns less at dust ones — a Plinko board pays back 38% at a stake of one wei. [Plinko's test](https://github.com/hookedin/play/blob/main/games/plinko/test/plinko.test.ts) runs the check over every board at every stake.
 
-The manifest must be at most 16 KB and served with CORS headers. Any manifest, listed or not, is linkable as `https://play.hookedin.com/games/custom?manifest=<encoded manifest URL>`. Opening a link loads the game; it grants no spending authority. Some reference manifests also carry a `template` field; the wallet does not read it.
+The manifest must be at most 16 KB and served with CORS headers. Any manifest, listed or not, is linkable as `https://play.hookedin.com/games/custom?manifest=<encoded manifest URL>`. Opening a link loads the game; it grants no spending authority.
 
 The developer address, the manifest URL and the entry URL together identify your game to the wallet.
 
@@ -124,14 +127,14 @@ A game does not get the player's balance. It gets a **spending limit** for the o
 - Leaving the game, reloading or closing the tab releases the limit. The money was never anywhere but the player's signed channel balance.
 - `pending: true` means the wallet holds a signed operation that has not resolved. No new wager is possible until the player recovers it in the wallet.
 
-`mountBank(element, { reason })` from the SDK renders all of this as the strip at the top of the reference games.
+`mountBank(element)` from the SDK renders all of this as the strip at the top of the reference games.
 
 ## The bridge
 
 Import the bridge, or post the envelopes yourself:
 
 ```ts
-import { HookedIn } from '@hookedin/game-sdk/sdk';
+import { HookedIn } from '@hookedin/play/sdk/sdk';
 const { asset } = await HookedIn.hello(); // what this wallet offers and the asset it plays with
 const info = await HookedIn.info();
 
@@ -181,7 +184,7 @@ The game receives the outcome, never the signed evidence. Games cannot request s
 A coin flip that pays double 49.5% of the time, a 99% return:
 
 ```ts
-import { HookedIn } from '@hookedin/game-sdk/sdk';
+import { HookedIn } from '@hookedin/play/sdk/sdk';
 
 const SPACE = 1n << 64n;
 
@@ -219,19 +222,19 @@ Rules that make this safe:
 - **Save before you send.** If the reply is lost (a crash, a reload, a timeout), read your saved `id` on startup and call `game.receipt`. A receipt means the wallet settled it; apply it exactly once. `null` with `pending: true` means the wallet still holds the signed request, and the player recovers it from the wallet's banner. `null` otherwise means nothing was signed, and you may send the same request again.
 - **A rejection is not a loss.** `status: 'rejected'` with `verified: true` proves the bet was cancelled with the balance unchanged. Offer the same bet again under a fresh `id`. A timeout or a generic error proves nothing: retry the exact request with the same `id`.
 - **Show the verified outcome.** Compute what the player sees from `receipt.outcome`: which bucket, which card, which reel stop. Then the picture and the money cannot disagree, and your page needs no randomness of its own.
-- **Leave the casino an edge.** The casino admits a bet only if its bankroll can carry it, and bigger prizes need more edge. Check a bet before offering it with `admits(bankroll, bet)` from `@hookedin/game-sdk/admits`, which is the casino's own rule; `wallet.info` reports `bankroll`. The reference games check against half the reported bankroll so that ordinary movement does not invalidate the bet.
+- **Leave the casino an edge.** The casino admits a bet only if its bankroll can carry it, and bigger prizes need more edge. Check a bet before offering it with `admits(bankroll, bet)` from `@hookedin/play/sdk/admits`, which is the casino's own rule; `wallet.info` reports `bankroll`. The reference games check against half the reported bankroll so that ordinary movement does not invalidate the bet.
 - **Scope your storage.** Key saved state by page, chain, player and asset (`HookedIn.storageScope(info)`), so games that share a host and accounts that share a browser do not read each other's rounds.
 
-[game-plinko](https://github.com/hookedin/game-plinko) is the complete version of this pattern: `src/drop.ts` there is about 150 lines and is the part to copy.
+[Plinko](https://github.com/hookedin/play/tree/main/games/plinko) is the complete version of this pattern: `src/drop.ts` there is about 150 lines and is the part to copy.
 
 ## Multi-step games: RoundClient
 
 A game with decisions, such as blackjack or Mines, is played as one bet per step. The SDK's `RoundClient` does the bookkeeping. You describe the game as a finite graph of public states:
 
 ```ts
-import { HookedIn } from '@hookedin/game-sdk/sdk';
-import { RoundClient } from '@hookedin/game-sdk/round';
-import { fraction } from '@hookedin/game-sdk/engine';
+import { HookedIn } from '@hookedin/play/sdk/sdk';
+import { RoundClient } from '@hookedin/play/sdk/round';
+import { fraction } from '@hookedin/play/sdk/engine';
 
 const round = new RoundClient(HookedIn, setup => ({
   root: 'ready',
@@ -270,7 +273,7 @@ What it does for you:
 
 The graph must be finite and acyclic, with exact rational probabilities that sum to one per action, and at most 64 distinct prizes per step.
 
-Reference games built this way: [game-dice](https://github.com/hookedin/game-dice) (one step), [game-mines](https://github.com/hookedin/game-mines) (stop when you like), [game-samson](https://github.com/hookedin/game-samson) (a slot: one step, dozens of prizes) and [game-blackjack](https://github.com/hookedin/game-blackjack) (up to dozens of steps, with a precomputed price table). The theory is in [sequential games built from native bets](https://github.com/hookedin/game-sdk/blob/main/docs/sequential-games.md).
+Reference games built this way: [Dice](https://github.com/hookedin/play/tree/main/games/dice) (one step), [Mines](https://github.com/hookedin/play/tree/main/games/mines) (stop when you like), [Samson's Gold](https://github.com/hookedin/play/tree/main/games/samson) (a slot: one step, dozens of prizes) and [Blackjack](https://github.com/hookedin/play/tree/main/games/blackjack) (up to dozens of steps, with a precomputed price table). The theory is in [sequential games built from native bets](https://github.com/hookedin/play/blob/main/sdk/docs/sequential-games.md).
 
 ## Commission
 
@@ -299,10 +302,12 @@ Keep the probe around in a branch. It is the fastest way to reproduce a wallet r
 `npm run build` writes `dist/`: plain static files. This repository deploys itself to Cloudflare whenever `main` is pushed, through [.github/workflows/deploy.yml](.github/workflows/deploy.yml) and [wrangler.jsonc](wrangler.jsonc). In your fork:
 
 1. In [wrangler.jsonc](wrangler.jsonc), change `name`, and add `routes` for a domain on your Cloudflare account. Without `routes` the game is served at `<name>.<your-subdomain>.workers.dev`.
-2. In the repository's **Settings → Secrets and variables → Actions**, add the secret `CLOUDFLARE_API_TOKEN` (create it in Cloudflare from the **Edit Cloudflare Workers** template) and the variables `CLOUDFLARE_ACCOUNT_ID` and `HOOKEDIN_DEVELOPER`, the address that earns the game's commission.
+2. In the repository's **Settings → Secrets and variables → Actions**, add the secret `CLOUDFLARE_API_TOKEN` (create it in Cloudflare from the **Edit Cloudflare Workers** template) and the variable `CLOUDFLARE_ACCOUNT_ID`.
 3. Push to `main`. The workflow tests, builds and publishes.
 
-To publish by hand instead: `HOOKEDIN_DEVELOPER=0xYourAddress npm run build && npx wrangler deploy`.
+Every six hours [.github/workflows/update-play.yml](.github/workflows/update-play.yml) (**Update play**) takes play's newest `main` and, when the lockfile changes and the tests pass, commits it and starts Deploy.
+
+To publish by hand instead: `npm run build && npx wrangler deploy`.
 
 Any static host works. It must send the headers in `dist/_headers`, which Cloudflare applies by itself. The one that matters most is `Access-Control-Allow-Origin: *`: the wallet fetches `manifest.json` from a different origin and refuses a game whose manifest it cannot read. The file also sets the page's Content-Security-Policy. Do not host the game on the wallet's own origin; the wallet refuses that too.
 
@@ -318,9 +323,9 @@ Publish it yourself: in the wallet, open **My wallet** and, under your name, giv
 npm test
 ```
 
-This type-checks and runs everything in `test/`. [test/bet.test.ts](test/bet.test.ts) is where to start: `@hookedin/play/testing/game-wallet.ts` builds the actual wallet code with an in-memory casino, so the test places real signed bets and checks real balances. Replace its bet with your own rules and prove the return you advertise.
+This type-checks and runs everything in `test/`. [test/bet.test.ts](test/bet.test.ts) is where to start: `@hookedin/play/testing/game-wallet.ts` builds the actual wallet code with an in-memory casino, so the test places real signed bets and checks real balances. Replace its bet with your own rules and prove your table's floor.
 
-The runner is `node --import tsx --test test/*.test.ts`, because the SDK ships TypeScript and Node does not strip types inside `node_modules` by itself. [game-plinko's test](https://github.com/hookedin/game-plinko/blob/main/test/plinko.test.ts) is the fuller model: it proves the return from the signed prizes, then drops balls through the wallet and recovers a lost reply.
+The runner is `node --import tsx --test test/*.test.ts`, because `@hookedin/play` ships TypeScript and Node does not strip types inside `node_modules` by itself. [Plinko's test](https://github.com/hookedin/play/blob/main/games/plinko/test/plinko.test.ts) is the fuller model: it proves the return from the signed prizes, then drops balls through the wallet and recovers a lost reply.
 
 ## Fairness, for your players
 

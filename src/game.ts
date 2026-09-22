@@ -1,6 +1,6 @@
 /** A developer probe: sends bridge requests by hand and prints every reply. Not a game. */
-import { HookedIn } from '@hookedin/game-sdk/sdk';
-import { mountBank } from '@hookedin/game-sdk/bank';
+import { HookedIn } from '@hookedin/play/sdk/sdk';
+import { mountBank } from '@hookedin/play/sdk/bank';
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const bank = mountBank($('bank'));
 const output = $('probe-output'),
