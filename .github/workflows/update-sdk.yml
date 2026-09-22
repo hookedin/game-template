@@ -25,6 +25,8 @@ jobs:
         run: git diff --quiet package-lock.json || echo moved=true >> "$GITHUB_OUTPUT"
       - if: steps.lock.outputs.moved
         run: npm test && npm run build
+        env:
+          HOOKEDIN_DEVELOPER: ${{ vars.HOOKEDIN_DEVELOPER }}
       - if: steps.lock.outputs.moved
         run: |
           git config user.name 'github-actions[bot]'
