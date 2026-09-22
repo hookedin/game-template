@@ -2,7 +2,7 @@
 import { HookedIn } from '@hookedin/game-sdk/sdk';
 import { mountBank } from '@hookedin/game-sdk/bank';
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
-const bank = mountBank($('bank'), { reason: 'The probe asks for a spending limit to exercise wagers.' });
+const bank = mountBank($('bank'));
 const output = $('probe-output'),
   request = $<HTMLTextAreaElement>('probe-request');
 let lastId = '';
@@ -41,7 +41,7 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
   receipt: () => ({ method: 'game.receipt', params: { id: lastId || operationId() } }),
   hello: () => ({ method: 'wallet.hello', params: {} }),
   info: () => ({ method: 'wallet.info', params: {} }),
-  funds: () => ({ method: 'game.requestFunds', params: { amount: stake(), reason: 'Probe funding request.' } }),
+  funds: () => ({ method: 'game.requestFunds', params: { amount: stake() } }),
 };
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-preset]'))
   button.addEventListener('click', () => {
