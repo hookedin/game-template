@@ -146,17 +146,16 @@ A reply carries the same `id` and either `result` or `error: {code, message}`; t
 
 A wallet plays with the network's ETH or with the casino's test coins, and `wallet.hello` says which. Amounts are whole numbers of the asset's smallest unit, as decimal strings; `wallet.hello` gives the asset's `symbol` and `decimals`, and `HookedIn.parseAmount` and `formatAmount` convert with them, so a game needs no code of its own for test coins. The `id` inside a financial request is your durable name for that operation: 1 to 64 characters of letters, digits, `.`, `_`, `:` or `-`. The same `id` with the same terms returns the saved receipt; the same `id` with different terms fails.
 
-| Method              | Parameters                   | Result                                                                                               |
-| ------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `wallet.hello`      | `{}`                         | `{methods, asset: {id, symbol, decimals}, chainId, limits}`                                          |
-| `wallet.info`       | `{}`                         | `{uname, alias, chainId, bankroll, recommendedStake}`, and nothing else of the player                |
-| `game.requestFunds` | `{amount?, reason?}`         | `{funded, amount, balance, pending}` after the player's decision. `reason` is at most 140 characters |
-| `game.bet`          | `{id, stake, prizes}`        | A verified receipt: settled, or rejected                                                             |
-| `game.bet` (hosted) | `{id, stake, prizes, round}` | `{status: 'pending'}` while the round's host keeps it open, then the verified receipt                |
-| `game.payment`      | `{id, amount}`               | A verified receipt. Pays the casino's bankroll; no outcome, no commission                            |
-| `game.transfer`     | `{id, amount}`               | Pays the manifest's `developer` address only. Pending, then a verified receipt                       |
-| `game.receipt`      | `{id}`                       | The outcome of an earlier operation by your `id`, or `null`                                          |
-| `game.cancel`       | `{id}`                       | Gives up a seat in a round its host has not closed; or the bet's result if it was                    |
+| Method              | Parameters                   | Result                                                                                             |
+| ------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------- |
+| `wallet.hello`      | `{}`                         | `{methods, asset: {id, symbol, decimals}, chainId, limits}`                                        |
+| `wallet.info`       | `{}`                         | `{uname, alias, chainId, bankroll, recommendedStake}`, and nothing else of the player              |
+| `game.requestFunds` | `{amount?}`                  | `{funded, amount, balance, pending}` after the player's decision; every word in it is the wallet's |
+| `game.bet`          | `{id, stake, prizes}`        | A verified receipt: settled, or rejected                                                           |
+| `game.bet` (hosted) | `{id, stake, prizes, round}` | `{status: 'pending'}` while the round's host keeps it open, then the verified receipt              |
+| `game.payment`      | `{id, amount}`               | A verified receipt. Pays the casino's bankroll; no outcome, no commission                          |
+| `game.receipt`      | `{id}`                       | The outcome of an earlier operation by your `id`, or `null`                                        |
+| `game.cancel`       | `{id}`                       | Gives up a seat in a round its host has not closed; or the bet's result if it was                  |
 
 One event arrives unasked: `game.balance` with `{balance, pending}`.
 

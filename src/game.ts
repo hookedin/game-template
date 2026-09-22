@@ -25,7 +25,7 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
     params: { id: operationId(), stake: stake(), prizes: [half()] },
   }),
   // A bet on a round a host opened. Paste the host's real `round`: this placeholder is no round at
-  // the casino, so the wallet's request to join it is refused and `game.cancel` withdraws the bet.
+  // the casino, so the casino declines the bet, saying it has no record of the round.
   shared: () => ({
     method: 'game.bet',
     params: {
@@ -37,7 +37,6 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
   }),
   cancel: () => ({ method: 'game.cancel', params: { id: lastId || operationId() } }),
   payment: () => ({ method: 'game.payment', params: { id: operationId(), amount: stake() } }),
-  transfer: () => ({ method: 'game.transfer', params: { id: operationId(), amount: stake() } }),
   receipt: () => ({ method: 'game.receipt', params: { id: lastId || operationId() } }),
   hello: () => ({ method: 'wallet.hello', params: {} }),
   info: () => ({ method: 'wallet.info', params: {} }),
