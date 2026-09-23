@@ -24,11 +24,22 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
     method: 'game.bet',
     params: { id: operationId(), stake: stake(), prizes: [half()] },
   }),
-  // An entry into a pot your game's referee opened. Paste the referee's real pot, and for a developer's pot the
-  // prizes and quote it gave: this placeholder is no pot at the casino, so the wallet refuses it before signing.
-  enter: () => ({
-    method: 'game.enter',
-    params: { id: operationId(), pot: '0x' + '22'.repeat(32), stake: stake(), prizes: [half()] },
+  // A bet your game's referee settles by its deadline: drawn against the bankroll, with prizes, or split, with
+  // terms of your own. It needs a manifest `referee` published with the game. A drawn bet rides the round your
+  // server opened with `referee.open` and draws with `referee.draw`; a split is settled with `referee.settle`.
+  drawn: () => ({
+    method: 'game.bet',
+    params: { id: operationId(), stake: stake(), prizes: [half()], deadline: Date.now() + 3_600_000, group: 'probe' },
+  }),
+  split: () => ({
+    method: 'game.bet',
+    params: {
+      id: operationId(),
+      stake: stake(),
+      terms: { pick: 'home' },
+      deadline: Date.now() + 3_600_000,
+      group: 'probe',
+    },
   }),
   payment: () => ({ method: 'game.payment', params: { id: operationId(), amount: stake() } }),
   receipt: () => ({ method: 'game.receipt', params: { id: lastId || operationId() } }),

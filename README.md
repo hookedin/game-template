@@ -77,7 +77,7 @@ The build is the `hookedin-game` command that `@hookedin/play` installs. It bund
 | `entry`       | yes      | The page to frame, relative to the manifest or absolute                                       |
 | `developer`   | yes      | The address that earns the game's commission. Not the zero address                            |
 | `description` | no       | Shown with the game. The wallet shows at most 220 characters                                  |
-| `referee`     | no       | The address of your server's key, when your game has pots; published with the game            |
+| `referee`     | no       | The address of your server's key, when your game has a referee; published with the game       |
 | `id`          | no       | Lowercase letters, digits and hyphens, starting with a letter or digit; at most 32 characters |
 
 ### What you pay back is measured, not stated
@@ -146,15 +146,15 @@ A reply carries the same `id` and either `result` or `error: {code, message}`; t
 
 A wallet plays with the network's ETH or with the casino's test coins, and `wallet.hello` says which. Amounts are whole numbers of the asset's smallest unit, as decimal strings; `wallet.hello` gives the asset's `symbol` and `decimals`, and `HookedIn.parseAmount` and `formatAmount` convert with them, so a game needs no code of its own for test coins. The `id` inside a financial request is your durable name for that operation: 1 to 64 characters of letters, digits, `.`, `_`, `:` or `-`. The same `id` with the same terms returns the saved receipt; the same `id` with different terms fails.
 
-| Method              | Parameters                          | Result                                                                                             |
-| ------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `wallet.hello`      | `{}`                                | `{methods, asset: {id, symbol, decimals}, chainId, limits}`                                        |
-| `wallet.info`       | `{}`                                | `{uname, alias, chainId, bankroll, recommendedStake}`, and nothing else of the player              |
-| `game.requestFunds` | `{amount?}`                         | `{funded, amount, balance, pending}` after the player's decision; every word in it is the wallet's |
-| `game.bet`          | `{id, stake, prizes}`               | A verified receipt: settled, or rejected                                                           |
-| `game.enter`        | `{id, pot, stake, prizes?, quote?}` | The entry's receipt at once; once the pot has ended, the same call returns what it paid            |
-| `game.payment`      | `{id, amount}`                      | A verified receipt. Pays the casino's bankroll; no outcome, no commission                          |
-| `game.receipt`      | `{id}`                              | The outcome of an earlier operation by your `id`, or `null`                                        |
+| Method              | Parameters                                                                        | Result                                                                                             |
+| ------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `wallet.hello`      | `{}`                                                                              | `{methods, asset: {id, symbol, decimals}, chainId, limits}`                                        |
+| `wallet.info`       | `{}`                                                                              | `{uname, alias, chainId, bankroll, recommendedStake}`, and nothing else of the player              |
+| `game.requestFunds` | `{amount?}`                                                                       | `{funded, amount, balance, pending}` after the player's decision; every word in it is the wallet's |
+| `game.bet`          | `{id, stake, prizes, group?}`                                                     | A verified receipt: settled, or rejected                                                           |
+| `game.bet`          | `{id, stake, prizes, deadline, group?}` or `{id, stake, terms, deadline, group?}` | The bet's receipt at once; once your referee has settled it, the same call returns what it paid    |
+| `game.payment`      | `{id, amount, group?}`                                                            | A verified receipt. Pays the casino's bankroll; no outcome, no commission                          |
+| `game.receipt`      | `{id}`                                                                            | The outcome of an earlier operation by your `id`, or `null`                                        |
 
 One event arrives unasked: `game.balance` with `{balance, pending}`.
 
@@ -168,12 +168,15 @@ A receipt, as the game sees it:
   kind,
   status, // 'signed' when settled, 'rejected' when the casino declined
   verified, // true once the wallet has checked the evidence
-  stake, // a bet's or entry's stake and prizes, as they played
+  stake, // a bet's stake and its prizes, or its terms and deadline, as it was placed
   prizes,
-  pot, // an entry's pot
-  outcome, // the round's 64-bit outcome, or a developer's pot's outcome, as a decimal string
-  payout, // what the prizes paid, or what a pot paid the entry once it ended
-  reason, // present on a rejection, and on an entry a void pot refunded
+  terms,
+  deadline,
+  group, // the label you gave it, if any
+  bet, // the hash naming a bet that settles later, at the casino and to your referee
+  outcome, // the 64-bit outcome of the round or draw that settled a bet with prizes, as a decimal string
+  payout, // what the bet paid, once it has settled
+  reason, // present on a rejection, and on a bet refunded
 }
 ```
 
@@ -275,15 +278,14 @@ The graph must be finite and acyclic, with exact rational probabilities that sum
 
 Reference games built this way: [Dice](https://github.com/hookedin/play/tree/main/games/dice) (one step), [Mines](https://github.com/hookedin/play/tree/main/games/mines) (stop when you like), [Samson's Gold](https://github.com/hookedin/play/tree/main/games/samson) (a slot: one step, dozens of prizes) and [Blackjack](https://github.com/hookedin/play/tree/main/games/blackjack) (up to dozens of steps, with a precomputed price table). The theory is in [sequential games built from native bets](https://github.com/hookedin/play/blob/main/sdk/docs/sequential-games.md).
 
-## Games many players share: pots
+## Bets that settle later
 
-A game whose players share one outcome, or one that pays at odds you set, runs a server of its own: its **referee**, a key you publish with the game as the manifest's `referee`. The referee opens pots at the casino with `createReferee` from `@hookedin/play/sdk/referee`, and each player's wallet enters one with `game.enter`: the stake leaves the game's balance at once, and the entry is final. Once the pot has ended, the same call returns what the entry was paid.
+A game can run a server of its own: its **referee**, a key you publish with the game as the manifest's `referee`, driven with `createReferee` from `@hookedin/play/sdk/referee`. Its bets are placed at once and are final, the stake leaving the game's balance, and settle later; once one has, the same `game.bet` call returns what it paid.
 
-- A **house pot** is played against the bankroll with one outcome for every entry. The referee opens it with the hash of a seed and resolves it with the seed. [Roulette](https://github.com/hookedin/play/tree/main/games/roulette) is the example.
-- A **developer's pot** pays at odds you set. The referee quotes each entry and names the outcome, and your bank at the casino pays what the pot cannot; put money in it on the wallet's **My games** page.
-- A **players' pot** is split among its entries as the referee signs, less a rake no larger than the one it was opened with.
+- A bet with **prizes** is **drawn**: it rides your referee's open round, which your server opens with `referee.open` before anybody bets on it, so its outcome is fixed before it is placed. When your game is ready, `referee.draw` draws the round against the bankroll, on one outcome, and each bet is paid what its prizes pay. A crash game's automatic cash-out is one prize. [Roulette](https://github.com/hookedin/play/tree/main/games/roulette) is the example.
+- A bet with **terms** is **split**: the referee signs what it pays, a crash cash-out made by hand while the round runs, a match at the odds you offered. The `terms` are your own JSON, and your bank at the casino pays what a split comes to beyond the stake and keeps the rest; put money in it on the wallet's **My games** page.
 
-The referee holds no money. A pot it does not end by its deadline is void, and every entry refunded. The wallet checks what ended a pot, the seed and secret or the referee's signature, before it collects.
+The referee holds no money. A bet it does not settle by its deadline is refunded. The wallet checks what settled a bet, the seed and the secret that drew its round or the referee's signature on the split, before it collects. `group` labels bets and payments that belong together, the steps of a hand or the bets on a match, and the wallet shows them as one.
 
 ## Commission
 
