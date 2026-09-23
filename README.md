@@ -280,7 +280,7 @@ Reference games built this way: [Dice](https://github.com/hookedin/play/tree/mai
 A game whose players share one outcome, or one that pays at odds you set, runs a server of its own: its **referee**, a key you publish with the game as the manifest's `referee`. The referee opens pots at the casino with `createReferee` from `@hookedin/play/sdk/referee`, and each player's wallet enters one with `game.enter`: the stake leaves the game's balance at once, and the entry is final. Once the pot has ended, the same call returns what the entry was paid.
 
 - A **house pot** is played against the bankroll with one outcome for every entry. The referee opens it with the hash of a seed and resolves it with the seed. [Roulette](https://github.com/hookedin/play/tree/main/games/roulette) is the example.
-- A **developer's pot** pays at odds you set. The referee quotes each entry and names the outcome, and your bank at the casino pays what the pot cannot; put money in it on the wallet's **My games** page. [Sports](https://github.com/hookedin/play/tree/main/games/sports) is the example.
+- A **developer's pot** pays at odds you set. The referee quotes each entry and names the outcome, and your bank at the casino pays what the pot cannot; put money in it on the wallet's **My games** page.
 - A **players' pot** is split among its entries as the referee signs, less a rake no larger than the one it was opened with.
 
 The referee holds no money. A pot it does not end by its deadline is void, and every entry refunded. The wallet checks what ended a pot, the seed and secret or the referee's signature, before it collects.
