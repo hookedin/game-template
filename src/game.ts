@@ -24,18 +24,12 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
     method: 'game.bet',
     params: { id: operationId(), stake: stake(), prizes: [half()] },
   }),
-  // A bet on a round a host opened. Paste the host's real `round`: this placeholder is no round at
-  // the casino, so the casino declines the bet, saying it has no record of the round.
-  shared: () => ({
-    method: 'game.bet',
-    params: {
-      id: operationId(),
-      stake: stake(),
-      prizes: [half()],
-      round: { id: '0x' + '22'.repeat(32), seedHash: '0x' + '33'.repeat(32) },
-    },
+  // An entry into a pot your game's referee opened. Paste the referee's real pot, and for a developer's pot the
+  // prizes and quote it gave: this placeholder is no pot at the casino, so the wallet refuses it before signing.
+  enter: () => ({
+    method: 'game.enter',
+    params: { id: operationId(), pot: '0x' + '22'.repeat(32), stake: stake(), prizes: [half()] },
   }),
-  cancel: () => ({ method: 'game.cancel', params: { id: lastId || operationId() } }),
   payment: () => ({ method: 'game.payment', params: { id: operationId(), amount: stake() } }),
   receipt: () => ({ method: 'game.receipt', params: { id: lastId || operationId() } }),
   hello: () => ({ method: 'wallet.hello', params: {} }),

@@ -23,9 +23,9 @@ test('a bet settles through the real wallet and moves the balance by its own ter
   });
   assert.equal(receipt.verified, true, 'the wallet verified the casino’s reveal');
   assert.equal(receipt.status, 'signed', 'the casino took the bet');
-  const won = BigInt(receipt.outcome) < HALF;
+  const won = BigInt(receipt.outcome!) < HALF;
   assert.equal(receipt.payout, won ? '1900' : '0');
-  assert.equal(BigInt(w.gameLimit().balance), before - 1000n + BigInt(receipt.payout));
+  assert.equal(BigInt(w.gameLimit().balance), before - 1000n + BigInt(receipt.payout!));
 });
 
 test('the same operation ID returns the saved receipt, so a lost reply costs nothing', async () => {
