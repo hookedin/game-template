@@ -24,15 +24,15 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
     method: 'game.bet',
     params: { id: operationId(), stake: stake(), prizes: [half()] },
   }),
-  // A bet your game's referee settles by its deadline: drawn against the bankroll, with prizes, or split, with
-  // terms of your own. It needs a manifest `referee` published with the game. A drawn bet rides the round your
-  // server opened with `referee.open` and draws with `referee.draw`; a split is settled with `referee.settle`.
+  // A bet your game's referee settles later, placed with `game.place`: drawn, with prizes, on the round your
+  // server opened with `referee.open` (paste its id), or split, with terms of your own, by a deadline. It needs the
+  // game published with a referee. Its settled receipt arrives by itself, as a `game.receipt` event.
   drawn: () => ({
-    method: 'game.bet',
-    params: { id: operationId(), stake: stake(), prizes: [half()], deadline: Date.now() + 3_600_000, group: 'probe' },
+    method: 'game.place',
+    params: { id: operationId(), stake: stake(), prizes: [half()], round: '0x' + '0'.repeat(64), group: 'probe' },
   }),
   split: () => ({
-    method: 'game.bet',
+    method: 'game.place',
     params: {
       id: operationId(),
       stake: stake(),
@@ -74,6 +74,7 @@ $('probe-clear').addEventListener('click', () => {
   output.textContent = 'Replies appear here, newest first.';
 });
 HookedIn.onBalance(balance => log('event game.balance', balance));
+HookedIn.onReceipt(receipt => log('event game.receipt', receipt));
 void HookedIn.hello()
   .then(async hello => {
     log('wallet.hello', hello);
