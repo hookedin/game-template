@@ -26,7 +26,7 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
   }),
   // A bet your game's referee settles later, placed with `game.place`: drawn, with prizes, on the round your
   // server opened with `referee.open` (paste its id), or split, with terms of your own, by a deadline. It needs the
-  // game published with a referee. Its settled receipt arrives by itself, as a `game.receipt` event.
+  // game published, and settled with your key. Its settled receipt arrives by itself, as a `game.receipt` event.
   drawn: () => ({
     method: 'game.place',
     params: { id: operationId(), stake: stake(), prizes: [half()], round: '0x' + '0'.repeat(64), group: 'probe' },
