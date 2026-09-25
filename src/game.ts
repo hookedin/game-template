@@ -25,17 +25,11 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
     params: { id: operationId(), stake: stake(), prizes: [half()] },
   }),
   // A developer bet: a bet against you, the game's developer, whose bank takes the stake at once and whose server
-  // settles it. With prizes it names a round your server opened with `developer.openRound` (paste its id), and is owed
-  // what they pay on the round's outcome if your server's casino bet on the round covers it, its stake back if not;
-  // with terms of your own, what your server says. It needs the game published. Its settled receipt arrives by itself,
-  // as a `game.receipt` event.
-  developerBetPrizes: () => ({
+  // settles it, paying what it says. `meta` is your game's own JSON, saying what the bet is. It needs the game
+  // published. Its settled receipt arrives by itself, as a `game.receipt` event.
+  developerBet: () => ({
     method: 'game.developerBet',
-    params: { id: operationId(), stake: stake(), prizes: [half()], round: '0x' + '0'.repeat(64), group: 'probe' },
-  }),
-  developerBetTerms: () => ({
-    method: 'game.developerBet',
-    params: { id: operationId(), stake: stake(), terms: { pick: 'home' }, group: 'probe' },
+    params: { id: operationId(), stake: stake(), meta: { pick: 'home' }, group: 'probe' },
   }),
   payment: () => ({ method: 'game.payment', params: { id: operationId(), amount: stake() } }),
   receipt: () => ({ method: 'game.receipt', params: { id: lastId || operationId() } }),

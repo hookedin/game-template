@@ -23,7 +23,6 @@ test('a casino bet settles through the real wallet and moves the balance by its 
     prizes: [{ rangeStart: '0', rangeEnd: String(HALF), payout: '1900' }],
   });
   assert.equal(receipt.status, 'settled', 'the casino took the bet');
-  assert.equal(receipt.basis, 'outcome', 'the wallet checked the outcome against the round the bet signed');
   const won = BigInt(receipt.outcome!) < HALF;
   assert.equal(receipt.payout, won ? '1900' : '0');
   assert.equal(BigInt(w.gameLimit().balance), before - 1000n + BigInt(receipt.payout!));

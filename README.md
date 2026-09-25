@@ -10,7 +10,7 @@ This README is the developer guide. The reference for every detail is [docs/game
 
 - A game is a **static web page** on your own host. The wallet at [play.hookedin.com](https://play.hookedin.com) loads it in a sandboxed iframe.
 - The game owns its rules, its presentation and its saved state. The wallet owns the player's keys, balance and settlement. The game never sees a key and never signs anything.
-- The game asks the wallet to place **bets**. A bet is a stake plus 1 to 64 **prizes**. A prize is `{ rangeStart, rangeEnd, payout }`: it pays when the round's outcome, a uniform integer below 2^64, falls in `[rangeStart, rangeEnd)`. Its probability is its width over 2^64. Prizes may overlap, and then they add. An outcome in no prize pays nothing.
+- The game asks the wallet to place **bets**. A casino bet is a stake plus 1 to 64 **prizes**. A prize is `{ rangeStart, rangeEnd, payout }`: it pays when the round's outcome, a uniform integer below 2^64, falls in `[rangeStart, rangeEnd)`. Its probability is its width over 2^64. Prizes may overlap, and then they add. An outcome in no prize pays nothing.
 - A **casino bet** settles against the casino's bankroll at once. A **developer bet** is a bet against you, the game's developer, which your server settles when it chooses.
 - The outcome comes from a secret the casino committed to in advance, combined with a seed the player's wallet picks afterwards. The wallet verifies the result before your game hears about it.
 - You earn **half the commission** on every casino bet placed through your game.
@@ -47,7 +47,7 @@ Reload after a change: every page load rebuilds the game.
 
 The probe's `50% to double` preset has no house edge, so expect the casino to decline it. That is useful: it shows you a rejection receipt. Narrow the range (see the example below) for a bet the casino accepts.
 
-The two `game.developerBet` presets need the game published, and settled by your server with your key (see [developer bets](#developer-bets)); paste the id of your server's open round into the one with prizes. Once your server has settled a bet, its receipt arrives by itself as a `game.receipt` event in the log.
+The `game.developerBet` preset needs the game published, and settled by your server with your key (see [developer bets](#developer-bets)). Once your server has settled a bet, its receipt arrives by itself as a `game.receipt` event in the log.
 
 ## What is in the repository
 
@@ -148,15 +148,15 @@ A reply carries the same `id` and either `result` or `error: {code, message}`; t
 
 A wallet plays with the network's ETH or with the casino's test coins, and `wallet.hello` says which. Amounts are whole numbers of the asset's smallest unit, as decimal strings; `wallet.hello` gives the asset's `symbol` and `decimals`, and `HookedIn.parseAmount` and `formatAmount` convert with them, so a game needs no code of its own for test coins. The `id` inside a financial request is your durable name for that operation, the same on every channel the player opens: 1 to 64 characters of letters, digits, `.`, `_`, `:` or `-`. The same `id` with the same terms returns the saved receipt; the same `id` with different terms fails with `id-conflict`.
 
-| Method              | Parameters                                                           | Result                                                                                                |
-| ------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `wallet.hello`      | `{}`                                                                 | `{methods, asset: {id, symbol, decimals}, chainId, limits}`                                           |
-| `wallet.info`       | `{}`                                                                 | `{uname, alias, chainId, bankroll, recommendedStake}`, and nothing else of the player                 |
-| `game.requestFunds` | `{amount?}`                                                          | `{funded, amount, balance, pending}` after the player's decision; every word in it is the wallet's    |
-| `game.casinoBet`    | `{id, stake, prizes, group?}`                                        | Its receipt, settled at once against the bankroll on the player's own round: `settled`, or `rejected` |
-| `game.developerBet` | `{id, stake, prizes, round, group?}` or `{id, stake, terms, group?}` | Its receipt at once: `open`, and final, or `rejected`. Your server settles it later                   |
-| `game.payment`      | `{id, amount, group?}`                                               | Its receipt. Pays the casino's bankroll; no outcome, no commission                                    |
-| `game.receipt`      | `{id}`                                                               | The receipt of an earlier operation by your `id`, as it stands, or `null`                             |
+| Method              | Parameters                    | Result                                                                                                |
+| ------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `wallet.hello`      | `{}`                          | `{methods, asset: {id, symbol, decimals}, chainId, limits}`                                           |
+| `wallet.info`       | `{}`                          | `{uname, alias, chainId, bankroll, recommendedStake}`, and nothing else of the player                 |
+| `game.requestFunds` | `{amount?}`                   | `{funded, amount, balance, pending}` after the player's decision; every word in it is the wallet's    |
+| `game.casinoBet`    | `{id, stake, prizes, group?}` | Its receipt, settled at once against the bankroll on the player's own round: `settled`, or `rejected` |
+| `game.developerBet` | `{id, stake, meta, group?}`   | Its receipt at once: `open`, and final, or `rejected`. Your server settles it later                   |
+| `game.payment`      | `{id, amount, group?}`        | Its receipt. Pays the casino's bankroll; no outcome, no commission                                    |
+| `game.receipt`      | `{id}`                        | The receipt of an earlier operation by your `id`, as it stands, or `null`                             |
 
 Two events arrive unasked: `game.balance` with `{balance, pending}`, and `game.receipt` with `{receipt}`, once your server has settled a developer bet your game placed and the wallet has collected it.
 
@@ -168,17 +168,14 @@ A receipt, as the game sees it:
 {
   id, // your operation id
   kind, // 'casino-bet', 'developer-bet' or 'payment'
-  status, // 'settled'; 'rejected', the balance unchanged; a developer bet 'open', 'returned' or 'shorted' too
-  basis, // what a settled bet's payout rests on: 'outcome', which the wallet checked, or 'developer', your word
-  stake, // a bet as it was placed: its stake, its prizes or terms
+  status, // 'settled'; 'rejected', the balance unchanged; a developer bet 'open' too
+  stake, // a bet as it was placed: its stake, a casino bet's prizes or a developer bet's meta
   prizes,
-  round, // the round a developer bet with prizes names
-  terms,
+  meta,
   group, // the label you gave it, if any
   bet, // the hash naming a developer bet, at the casino and to your server
-  outcome, // the 64-bit outcome of a bet's round, as a decimal string
-  owed, // what a developer bet with prizes is owed: its prizes' payout if your casino bet covered it, its stake if not
-  payout, // what the bet paid once it has settled
+  outcome, // the 64-bit outcome of a casino bet's round, as a decimal string, which the wallet checked
+  payout, // what the bet paid once it has settled: a developer bet's is your word
   reason, // present on a rejection
 }
 ```
@@ -288,14 +285,15 @@ A game can run a server of its own and take **developer bets**: bets against you
 
 The page places a developer bet with `game.developerBet` (`HookedIn.developerBet`). It is placed at once and final, the stake leaving the game's balance, and the reply is its receipt, `open`. Once your server has settled it, the wallet checks the settlement, collects it and pushes the new receipt as a `game.receipt` event (`HookedIn.onReceipt`). The wallet looks by itself every few seconds; a page that hears from your server that a bet has settled calls `game.receipt` with its `id`, and the wallet looks at once.
 
-- A developer bet with **prizes** is provably fair: `{id, stake, prizes, round}` names a round of yours. Your server opens it with `developer.openRound(asset)`, a new one every time, and tells its pages its `id`: the casino names the round and the kit commits the seed of your own casino bet on it before anybody bets, so each bet's outcome is fixed before it is placed. **Betting on a round ends with your casino bet on it**: `developer.casinoBet({round, stake, prizes, covers})`, from your bank, names the developer bets it covers, adds up their prizes and stakes, and reveals the round. The casino admits it against its bankroll like any casino bet. Each developer bet on the round is then **owed** what its prizes pay if your accepted casino bet covers it, and its stake back if not; `owed(bet, round)` from the kit works it out, and `developer.settle` pays it. Cover only bets whose prizes you would back: players sign their own. Save the round before your casino bet, so a restarted server places the same one. A crash game with no manual cash-out works this way, each automatic cash-out one prize. [Roulette](https://github.com/hookedin/play/tree/main/games/roulette) is the example.
-- A developer bet with **terms** is paid what your server signs: `{id, stake, terms}`, your own JSON, up to `limits.terms` bytes. A match at the odds you offered, or a cash-out made by hand in a crash game, whose crash point your server keeps to itself. A manual cash-out cannot ride a round: to know when to crash, your server would have to reveal the round at take-off, and a revealed round is public.
+A developer bet is `{id, stake, meta, group?}`: `meta` is your own JSON, up to `limits.meta` bytes, saying what the bet is, such as a pick and its odds, a layout of chips or a cash-out made by hand. The casino keeps it with the bet and never reads it; your server reads it and settles the bet by it, paying what it signs. Before it collects, the wallet checks only that you signed the settlement.
 
-Before it collects, the wallet checks your signed settlement and, for a bet with prizes, the round's seed and secret and your casino bet, and the receipt says what the bet was owed: `settled`, `returned` (not covered, with what it would have paid) or `shorted` (paid less than owed). `developer.settle` pays from your bank, which took the stakes; put more in it on the wallet's **My games** page. Nothing in the bank is reserved, and a batch of settlements it cannot pay is refused whole: whether you can pay what your developer bets are owed is between you and your players, and playing your game trusts you for its payments, and for its outcomes with terms ([settled trade-offs](https://github.com/hookedin/play/blob/main/architecture.md#settled-trade-offs)). A developer bet has no deadline: it stays open until you settle it, and your game's public record shows how many are. `group` labels bets and payments that belong together, the steps of a hand or the bets on a match, and the wallet shows them as one.
+A game that wants its developer bets provably fair builds its own scheme on your rounds. Your server opens one with `developer.openRound(asset)`, a new one every time, the casino naming it by the hash of a secret, and tells its pages its `id` and `developer.seedHash(id)`, the hash of the seed your casino bet on it will bring, before anybody bets; each bet names the seed hash in its meta, so its outcome is fixed before it is placed. When betting ends, your server places its own casino bet on the round, from your bank: `developer.casinoBet({round, stake, prizes, meta})` adds up the prizes and stakes of the bets it backs, is admitted against the bankroll like any casino bet, and reveals the round; its `meta` commits to what you chose before the outcome was revealed, such as the bets it backs. Save that before your casino bet, so a restarted server places the same one. A crash game with no manual cash-out works this way, each automatic cash-out one prize; a manual cash-out cannot ride a round, because to know when to crash your server would have to reveal the round at take-off, and a revealed round is public. [Roulette](https://github.com/hookedin/play/tree/main/games/roulette) is the example.
+
+`developer.settle` pays from your bank, which took the stakes; put more in it on the wallet's **My games** page. Nothing in the bank is reserved, and a batch of settlements it cannot pay is refused whole: whether you can pay what your developer bets are owed is between you and your players, and playing your game trusts you for its payments, and for whatever your scheme promises ([settled trade-offs](https://github.com/hookedin/play/blob/main/architecture.md#settled-trade-offs)). A developer bet has no deadline: it stays open until you settle it, and your game's public record shows how many are. `group` labels bets and payments that belong together, the steps of a hand or the bets on a match, and the wallet shows them as one.
 
 ## Commission
 
-The casino admits a casino bet when its bankroll could take it with no commission at all. Commission is the edge the bankroll does not need, the most that still leaves its wager sound, and it is split equally: half to the account that publishes the game, half to the casino. That admits the largest bets and charges only the surplus ([settled trade-offs](https://github.com/hookedin/play/blob/main/architecture.md#settled-trade-offs)). No fee protects a player from a game: a game can spend its whole spending limit on bets that pay back little, and the wallet records each bet's return without refusing it. The limit the player sets is their protection.
+The casino admits a casino bet when its bankroll could take it with no commission at all. Commission is the edge the bankroll does not need, the most that still leaves its wager sound, and it is split equally: half to the account that publishes the game, half to the casino. That admits the largest bets and charges only the surplus ([settled trade-offs](https://github.com/hookedin/play/blob/main/architecture.md#settled-trade-offs)). No fee protects a player from a game: a game can spend its whole spending limit on bets that pay back little, and the wallet records each casino bet's return without refusing it. The limit the player sets is their protection.
 
 - It accrues on every settled casino bet, win or lose, your own on a round included. A rejected bet earns nothing. A developer bet gives the casino the part your settlement signs instead, which the casino asks to be about half of what the bet was expected to earn you; nothing enforces it.
 - It is never an extra debit to the player. The player's stake and prizes are exactly what was signed.
@@ -343,15 +341,15 @@ npm test
 
 This type-checks and runs everything in `test/`. [test/casino-bet.test.ts](test/casino-bet.test.ts) is where to start. `gameWallet()` from `@hookedin/play/testing/game-wallet.ts` gives you `f`: the real wallet, `f.wallet`, wired to a stub casino that holds every casino bet to the casino's own admission rule and charges its commission, so a table it takes is one the casino takes. `f.bridge` is your game's side of the bridge: every request goes through the checks the wallet's bridge makes, the player agrees to every request for funds, and `f.bridge.onReceipt` hears pushed receipts. Its three tests settle a casino bet and check the balance, send one twice and find it placed once, and see a zero-edge one declined with the balance unchanged. Replace their bets with your own rules and prove your table's floor.
 
-For a game with a server, `f.developer` is a stub shaped like the one `createDeveloper` returns, to test your server against: [test/developer-bet.test.ts](test/developer-bet.test.ts) covers a developer bet with prizes with a casino bet and pays it what it is owed, and pays one with terms. `f.replaceChannel()`, `f.reload()` and `f.forget()`, a wallet without its receipts, test recovery.
+For a game with a server, `f.developer` is a stub shaped like the one `createDeveloper` returns, to test your server against: [test/developer-bet.test.ts](test/developer-bet.test.ts) backs a developer bet on a round with a casino bet and pays it what its prizes pay, and pays another what your server signs. `f.replaceChannel()`, `f.reload()` and `f.forget()`, a wallet without its receipts, test recovery.
 
 The runner is `node --import tsx --test test/*.test.ts`, because `@hookedin/play` ships TypeScript and Node does not strip types inside `node_modules` by itself. [Plinko's test](https://github.com/hookedin/play/blob/main/games/plinko/test/plinko.test.ts) is the fuller model: it proves the return from the signed prizes, then drops balls through the wallet and recovers a lost reply.
 
 ## Fairness, for your players
 
-- The game never holds keys. The wallet signs each bet whole: the stake and every prize, or its terms.
-- Every bet with prizes is on a round, named by the hash of a secret the casino fixed before the seed was picked: the wallet's own seed for a casino bet, the one your server committed to its round for a developer bet. The outcome is the low 64 bits of `keccak256(abi.encode(keccak256("HOOKEDIN/OUTCOME"), seed, secret))`.
-- The wallet checks the revealed secret and seed against the hashes the bet signed, recomputes the outcome and what the bet is owed, and only then tells the game. A developer bet with terms rests on your signature, and its receipt says so.
+- The game never holds keys. The wallet signs each bet whole: the stake and every prize, or its meta.
+- Every bet with prizes is on a round, named by the hash of a secret the casino fixed before the seed was picked: the wallet's own seed for a casino bet, and your server's for its casino bet on its round. The outcome is the low 64 bits of `keccak256(abi.encode(keccak256("HOOKEDIN/OUTCOME"), seed, secret))`.
+- For a casino bet, the wallet checks the revealed secret and seed against the hashes the bet signed and recomputes the outcome before it tells the game. A developer bet rests on your signature; whether your scheme is fair is for anyone to check against what the casino publishes.
 - The game never sees future entropy. It learns an outcome only from a completed receipt.
 
 The wallet verifies each bet and measures what it pays back. It does not certify your rules, your animations, or that a funded game finishes. Publish your source, prove your table's floor in a test, and draw what the player sees from the verified outcome.
