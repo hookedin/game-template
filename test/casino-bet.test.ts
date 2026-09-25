@@ -3,20 +3,20 @@ import assert from 'node:assert/strict';
 import { gameWallet } from '@hookedin/play/testing/game-wallet.ts';
 
 /**
- * The starting point for your game's tests: a real wallet, an in-memory casino that holds every bet to the casino's
- * own admission rule, and real signed bets, sent through the checks the wallet's bridge makes. Replace the bet
- * below with your own rules, and prove your table's floor.
+ * The starting point for your game's tests: a real wallet, an in-memory casino that holds every casino bet to the
+ * casino's own admission rule, and real signed bets, sent through the checks the wallet's bridge makes. Replace the
+ * bet below with your own rules, and prove your table's floor.
  */
 const SPACE = 1n << 64n;
 const HALF = SPACE / 2n;
 
-test('a bet settles through the real wallet and moves the balance by its own terms', async () => {
+test('a casino bet settles through the real wallet and moves the balance by its own terms', async () => {
   const f = await gameWallet(),
     w = f.wallet;
   w.openGame(f.identity('my-game'));
   await w.setGameLimit('200000');
   const before = BigInt(w.gameLimit().balance);
-  const receipt = await f.bridge.call('game.bet', {
+  const receipt = await f.bridge.call('game.casinoBet', {
     id: 'first-bet',
     stake: '1000',
     // Half the outcome space, paying 1.9×: a 95% return, which the casino admits.
@@ -35,18 +35,22 @@ test('the same operation ID returns the saved receipt, so a lost reply costs not
   w.openGame(f.identity('my-game'));
   await w.setGameLimit('200000');
   const bet = { id: 'only-once', stake: '1000', prizes: [{ rangeStart: '0', rangeEnd: String(HALF), payout: '1900' }] };
-  const first = await f.bridge.call('game.bet', bet);
-  assert.deepEqual(await f.bridge.call('game.bet', bet), first, 'the bet is placed once, however often it is sent');
+  const first = await f.bridge.call('game.casinoBet', bet);
+  assert.deepEqual(
+    await f.bridge.call('game.casinoBet', bet),
+    first,
+    'the bet is placed once, however often it is sent',
+  );
   // game.receipt answers the same for the same ID, which is how a lost reply is resolved.
   assert.deepEqual(await f.bridge.call('game.receipt', { id: 'only-once' }), first);
 });
 
-test('a bet with no edge is declined, as the casino declines it, and the balance stays', async () => {
+test('a casino bet with no edge is declined, as the casino declines it, and the balance stays', async () => {
   const f = await gameWallet(),
     w = f.wallet;
   w.openGame(f.identity('my-game'));
   await w.setGameLimit('200000');
-  const receipt = await f.bridge.call('game.bet', {
+  const receipt = await f.bridge.call('game.casinoBet', {
     id: 'fair',
     stake: '1000',
     prizes: [{ rangeStart: '0', rangeEnd: String(HALF), payout: '2000' }],

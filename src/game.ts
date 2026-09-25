@@ -20,26 +20,22 @@ const operationId = () => {
 /** Double the stake on the lower half of the outcome space. */
 const half = () => ({ rangeStart: '0', rangeEnd: String((1n << 64n) / 2n), payout: String(2n * BigInt(stake())) });
 const presets: Record<string, () => { method: string; params: Record<string, unknown> }> = {
-  bet: () => ({
-    method: 'game.bet',
+  casinoBet: () => ({
+    method: 'game.casinoBet',
     params: { id: operationId(), stake: stake(), prizes: [half()] },
   }),
-  // A bet your game's referee settles later, placed with `game.place`: drawn, with prizes, on the round your
-  // server opened with `referee.open` (paste its id), or split, with terms of your own, by a deadline. It needs the
-  // game published, and settled with your key. Its settled receipt arrives by itself, as a `game.receipt` event.
-  drawn: () => ({
-    method: 'game.place',
+  // A developer bet: a bet against you, the game's developer, whose bank takes the stake at once and whose server
+  // settles it. With prizes it names a round your server opened with `developer.openRound` (paste its id), and is owed
+  // what they pay on the round's outcome if your server's casino bet on the round covers it, its stake back if not;
+  // with terms of your own, what your server says. It needs the game published. Its settled receipt arrives by itself,
+  // as a `game.receipt` event.
+  developerBetPrizes: () => ({
+    method: 'game.developerBet',
     params: { id: operationId(), stake: stake(), prizes: [half()], round: '0x' + '0'.repeat(64), group: 'probe' },
   }),
-  split: () => ({
-    method: 'game.place',
-    params: {
-      id: operationId(),
-      stake: stake(),
-      terms: { pick: 'home' },
-      deadline: Date.now() + 3_600_000,
-      group: 'probe',
-    },
+  developerBetTerms: () => ({
+    method: 'game.developerBet',
+    params: { id: operationId(), stake: stake(), terms: { pick: 'home' }, group: 'probe' },
   }),
   payment: () => ({ method: 'game.payment', params: { id: operationId(), amount: stake() } }),
   receipt: () => ({ method: 'game.receipt', params: { id: lastId || operationId() } }),
@@ -79,6 +75,6 @@ void HookedIn.hello()
   .then(async hello => {
     log('wallet.hello', hello);
     log('wallet.info', await HookedIn.info());
-    request.value = JSON.stringify(presets.bet!(), null, 2);
+    request.value = JSON.stringify(presets.casinoBet!(), null, 2);
   })
   .catch(error => log('startup', { code: error.code, message: error.message }));
