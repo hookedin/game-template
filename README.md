@@ -35,7 +35,9 @@ printed, newest first.
 
 The `50% to double` preset leaves the casino no edge, so it declines it: that shows you a rejection. Narrow the range
 for a bet the casino takes. The `game.developerBet` preset needs the game published and a server that settles its
-bets with your key; see [developer bets](https://hookedin.com/docs/games/developer-bets/).
+bets with your key; see [developer bets](https://hookedin.com/docs/games/developer-bets/). A game with a server of its
+own starts from [game-roulette](https://github.com/hookedin/game-roulette) instead: a template whose page and server
+deploy together.
 
 ## What is in the repository
 
