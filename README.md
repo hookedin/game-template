@@ -33,8 +33,8 @@ custom game** and load `http://127.0.0.1:4185/manifest.json`. Press **Add funds*
 `game.casinoBet · 50% to double`, edit its JSON if you like, and press **Send**: every request, reply and event is
 printed, newest first.
 
-The `50% to double` preset leaves the casino no edge, so it declines it: that shows you a rejection. Narrow the range
-for a bet the casino takes. The `game.developerBet` preset needs the game published and a server that settles its
+The `50% to double` preset leaves the casino no edge, so it declines it: that shows you a rejection. Lower the chance
+or the prize for a bet the casino takes. The `game.developerBet` preset needs the game published and a server that settles its
 bets with your key; see [developer bets](https://hookedin.com/docs/games/developer-bets/). A game with a server of its
 own starts from [game-roulette](https://github.com/hookedin/game-roulette) instead: a template whose page and server
 deploy together.
@@ -77,7 +77,7 @@ This type-checks and runs `test/`, with `node --import tsx --test`, because `@ho
 does not strip types inside `node_modules`. [test/casino-bet.test.ts](test/casino-bet.test.ts) settles a casino bet,
 sends one twice and finds it placed once, and sees a zero-edge one declined;
 [test/developer-bet.test.ts](test/developer-bet.test.ts) backs a developer bet with a casino bet on a round and pays
-what your server signs. Replace their bets with your own rules and prove your table's floor. See
+what your server signs. Replace their bets with your own rules and prove your game's floor. See
 [testing](https://hookedin.com/docs/games/testing/).
 
 ## Deploy your fork

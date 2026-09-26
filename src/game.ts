@@ -17,12 +17,16 @@ const operationId = () => {
   lastId = entered || `probe-${Date.now()}`;
   return lastId;
 };
-/** Double the stake on the lower half of the outcome space. */
-const half = () => ({ rangeStart: '0', rangeEnd: String((1n << 64n) / 2n), payout: String(2n * BigInt(stake())) });
 const presets: Record<string, () => { method: string; params: Record<string, unknown> }> = {
+  // Double the stake when the round's outcome falls in the lower half of the 2^64 outcomes.
   casinoBet: () => ({
     method: 'game.casinoBet',
-    params: { id: operationId(), stake: stake(), prizes: [half()] },
+    params: {
+      id: operationId(),
+      stake: stake(),
+      chance: String((1n << 64n) / 2n),
+      prize: String(2n * BigInt(stake())),
+    },
   }),
   // A developer bet: a bet against you, the game's developer, whose bank takes the stake at once and whose server
   // settles it, paying what it says. `meta` is your game's own JSON, saying what the bet is. It needs the game
@@ -35,6 +39,8 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
   receipt: () => ({ method: 'game.receipt', params: { id: lastId || operationId() } }),
   hello: () => ({ method: 'wallet.hello', params: {} }),
   info: () => ({ method: 'wallet.info', params: {} }),
+  // A developer's round as the casino shows it: paste a round's ID.
+  round: () => ({ method: 'wallet.round', params: { id: '0x' + '0'.repeat(64) } }),
   funds: () => ({ method: 'game.requestFunds', params: { amount: stake() } }),
 };
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-preset]'))
