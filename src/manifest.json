@@ -1,5 +1,4 @@
 {
-  "id": "probe",
   "name": "Bridge probe",
   "description": "A developer tool, not a game: send any bridge request by hand and read the raw reply.",
   "entry": "./index.html",
