@@ -26,7 +26,7 @@ test('a developer bet on a round your casino bet backs is paid what your scheme 
   w.openGame(f.identity());
   await w.setGameLimit('200000');
   // Your server opens a round and tells its pages the id and the hash of its seed; the bet names both.
-  const round = await f.developer.openRound('eth'),
+  const round = await f.developer.openRound(),
     seedHash = await f.developer.seedHash(round.id),
     odds = { chance: String(HALF), prize: '1900' },
     group = round.id.slice(2);

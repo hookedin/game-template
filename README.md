@@ -34,8 +34,10 @@ custom game** and load `http://127.0.0.1:4185/manifest.json`. Press **Add funds*
 printed, newest first.
 
 The `50% to double` preset leaves the casino no edge, so it declines it: that shows you a rejection. Lower the chance
-or the prize for a bet the casino takes. The `game.developerBet` preset needs the game published and a server that settles its
-bets with your key; see [developer bets](https://hookedin.com/docs/games/developer-bets/). A game with a server of its
+or the prize for a bet the casino takes. A wallet with no ETH practices: it plays with test coins of its own, settles
+casino bets and payments itself under the casino's own rule, sends the casino nothing, and refuses a developer bet with
+`practice`. The `game.developerBet` preset needs ETH, the game published and a server that settles its bets with your
+key; see [developer bets](https://hookedin.com/docs/games/developer-bets/). A game with a server of its
 own starts from [game-roulette](https://github.com/hookedin/game-roulette) instead: a template whose page and server
 deploy together.
 
