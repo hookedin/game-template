@@ -61,7 +61,7 @@ $('probe-send').addEventListener('click', async () => {
     log(`← ${envelope.method}`, result);
     if (envelope.method === 'game.requestFunds' && result && typeof result === 'object') bank.update(result);
   } catch (error: any) {
-    log(`✖ ${envelope.method}`, error.message);
+    log(`✖ ${envelope.method}`, { code: error.code, message: error.message });
   } finally {
     bank.setBusy(false);
   }

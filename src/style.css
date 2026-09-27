@@ -45,3 +45,9 @@ textarea {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+@media (max-width: 600px) {
+  .probe-grid {
+    grid-template-columns: 1fr 1fr;
+    margin: 12px 0;
+  }
+}
