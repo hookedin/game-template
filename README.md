@@ -23,15 +23,13 @@ npm run dev
 
 This builds the game into `dist/` and serves it at `http://127.0.0.1:4185/` (`PORT` moves it), building it again on
 every page load. Open the wallet at [play.hookedin.com](https://play.hookedin.com), go to **Games**, choose **Open a game
-by URL** and open `http://127.0.0.1:4185/`. With ETH, press **Add funds** in the probe; practice needs none. Pick a
+by URL** and open `http://127.0.0.1:4185/`. Press **Add funds** in the probe to give the game money. Pick a
 preset such as `game.casinoBet · 50% to double`, edit its JSON if you like, and press **Send**: every request, reply and
 event is printed, newest first.
 
 The `50% to double` preset leaves the casino no edge, so it declines it: that shows you a rejection. Lower the chance
-or the prize for a bet the casino takes. A wallet with no ETH practices: it plays with play money of its own, settles
-casino bets and payments itself under the casino's own rule, sends the casino nothing, and refuses a developer bet with
-`practice`. The `game.developerBet` preset needs ETH, the game published and a server that settles its bets with your
-key; see [developer bets](https://hookedin.com/docs/games/developer-bets/). A game with a server of its
+or the prize for a bet the casino takes. The `game.developerBet` preset needs the game published and a server that
+settles its bets with your key; see [developer bets](https://hookedin.com/docs/games/developer-bets/). A game with a server of its
 own starts from [game-roulette](https://github.com/hookedin/game-roulette) instead: a template whose page and server
 deploy together.
 
