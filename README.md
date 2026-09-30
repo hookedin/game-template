@@ -23,7 +23,7 @@ npm run dev
 
 This builds the game into `dist/` and serves it at `http://127.0.0.1:4185/` (`PORT` moves it), building it again on
 every page load. Open the wallet at [play.hookedin.com](https://play.hookedin.com), go to **Games**, choose
-**Open a game by URL** and open `http://127.0.0.1:4185/`. Press **Adjust allowance** in the probe to give the game
+**Open a game by its URL** and open `http://127.0.0.1:4185/`. Press **Adjust allowance** in the probe to give the game
 money. Pick a preset such as `game.casinoBet · 50% to double`, edit its JSON if you like, and press **Send**: every
 request, reply and event is printed, newest first.
 
@@ -35,16 +35,16 @@ deploy together.
 
 ## What is in the repository
 
-| File                                     | What it holds                                                                                                                          |
-| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| [src/index.html](src/index.html)         | The page. It loads `./shared.css`, `./style.css` and `./game.js`                                                                       |
-| [src/game.ts](src/game.ts)               | The entry point, bundled to `dist/game.js`. Here: the probe's presets, send button and log                                             |
-| [src/style.css](src/style.css)           | Page styles, on top of the SDK's `shared.css`                                                                                          |
-| [src/icon.svg](src/icon.svg)             | The icon the wallet shows the game by: a square SVG of one symbol ([the icon](https://hookedin.com/docs/reference/game-url/#the-icon)) |
-| [test/](test/)                           | Real casino and developer bets through the real wallet, against a stub casino held to its rules                                        |
-| [package.json](package.json)             | `build`, `dev`, `typecheck`, `test`, `format`; one dependency, `@hookedin/play`                                                        |
-| [wrangler.jsonc](wrangler.jsonc)         | The Cloudflare Worker `npm run build && npx wrangler deploy` publishes `dist/` as                                                      |
-| [.github/workflows/](.github/workflows/) | Test and build on every push; deploy on push to `main`                                                                                 |
+| File                                     | What it holds                                                                                                                        |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| [src/index.html](src/index.html)         | The page. It loads `./shared.css`, `./style.css` and `./game.js`                                                                     |
+| [src/game.ts](src/game.ts)               | The entry point, bundled to `dist/game.js`. Here: the probe's presets, send button and log                                           |
+| [src/style.css](src/style.css)           | Page styles, on top of the SDK's `shared.css`                                                                                        |
+| [src/icon.svg](src/icon.svg)             | The icon the wallet shows the game by: a square SVG of one symbol ([the icon](https://hookedin.com/docs/games/publishing/#the-icon)) |
+| [test/](test/)                           | Real casino and developer bets through the real wallet, against a stub casino held to its rules                                      |
+| [package.json](package.json)             | `build`, `dev`, `typecheck`, `test`, `format`; one dependency, `@hookedin/play`                                                      |
+| [wrangler.jsonc](wrangler.jsonc)         | The Cloudflare Worker `npm run build && npx wrangler deploy` publishes `dist/` as                                                    |
+| [.github/workflows/](.github/workflows/) | Test and build on every push; deploy on push to `main`                                                                               |
 
 `@hookedin/play` is installed from play's `main` branch; the lockfile records the exact commit, and
 `npm update @hookedin/play` moves it. The build is the `hookedin-game` command it installs.
@@ -59,8 +59,7 @@ deploy together.
    square, with no rounded background of its own: the wallet rounds its corners.
 4. `package.json`: the package `name` and `repository`.
 
-Keep the probe in a branch: it is the fastest way to reproduce a reply you did not expect. The wallet also keeps a live
-log of every bridge message when its URL carries `?log`.
+Keep the probe in a branch: it is the fastest way to reproduce a reply you did not expect.
 
 ## Tests
 

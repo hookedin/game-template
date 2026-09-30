@@ -1,4 +1,4 @@
-// Where `wrangler deploy` publishes dist/: a Cloudflare Worker that only serves static assets (the successor to Pages).
+// Where `wrangler deploy` publishes dist/: a Cloudflare Worker that only serves static assets.
 // Give the Worker your own `name`; add "routes": [{ "pattern": "game.example.com", "custom_domain": true }] to serve it
 // from a domain on your Cloudflare account. Without routes it is served at <name>.<your-subdomain>.workers.dev.
 {
