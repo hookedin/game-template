@@ -4,8 +4,8 @@ Start here to build a game for [HookedIn](https://hookedin.com), a casino whose 
 
 This repository is a GitHub template. What it holds is the **bridge probe**: a page that sends every wallet bridge
 method by hand and prints each raw reply. It is a working HookedIn game in four source files, and the quickest way to
-see what the wallet answers to a bet, a rejection, a request for funds or a lost reply. Replace the probe's page with
-your game and keep the rest.
+see what the wallet answers to a bet, a rejection, a request for a larger allowance or a lost reply. Replace the probe's
+page with your game and keep the rest.
 
 How a game works, the bridge, the SDK and the casino are documented at **[hookedin.com/docs](https://hookedin.com/docs/)**;
 start with [building a game](https://hookedin.com/docs/games/quick-start/).
@@ -24,8 +24,8 @@ npm run dev
 This builds the game into `dist/` and serves it at `http://127.0.0.1:4185/` (`PORT` moves it), building it again on
 every page load. Open the wallet at [play.hookedin.com](https://play.hookedin.com), go to **Games**, choose
 **Open a game by its URL** and open `http://127.0.0.1:4185/`. Press **Adjust allowance** in the probe to give the game
-money. Pick a preset such as `game.casinoBet · 50% to double`, edit its JSON if you like, and press **Send**: every
-request, reply and event is printed, newest first.
+an allowance. Pick a preset such as `game.casinoBet · 50% to double`, edit its JSON if you like, and press **Send**:
+every request, reply and event is printed, newest first.
 
 The `50% to double` preset leaves the casino no edge, so it declines it: that shows you a rejection. Lower the chance
 or the prize for a bet the casino takes. The `game.developerBet` preset needs the game published and a server that
@@ -51,8 +51,8 @@ deploy together.
 
 ## Make it your game
 
-1. [src/index.html](src/index.html) and [src/style.css](src/style.css): your page. Keep `<div id="bank">` for the SDK's
-   balance strip, and keep loading `./game.js` as a module.
+1. [src/index.html](src/index.html) and [src/style.css](src/style.css): your page. Keep `<div id="allowance">` for the
+   SDK's allowance strip, and keep loading `./game.js` as a module.
 2. [src/game.ts](src/game.ts): your rules, from a [one-shot casino bet](https://hookedin.com/docs/games/casino-bets/)
    or a [multi-step round](https://hookedin.com/docs/games/multi-step-games/).
 3. [src/icon.svg](src/icon.svg): the icon the wallet shows your game by, a square SVG of one symbol that fills the

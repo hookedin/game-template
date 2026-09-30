@@ -24,7 +24,7 @@ test('a developer bet on a round your casino bet backs is paid what your scheme 
   const f = await gameWallet(),
     w = f.wallet;
   w.openGame(f.identity());
-  await w.setGameLimit('200000');
+  await w.setGameAllowance('200000');
   // Your server opens a round and tells its pages the id and the hash of its seed; the bet names both.
   const round = await f.developer.openRound(),
     seedHash = await f.developer.seedHash(round.id),
@@ -58,12 +58,12 @@ test('a developer bet is paid what your server signs, from your bank', async () 
   const f = await gameWallet(),
     w = f.wallet;
   w.openGame(f.identity());
-  await w.setGameLimit('200000');
+  await w.setGameAllowance('200000');
   const placed = await f.bridge.call('game.developerBet', { id: 'match', stake: '1000', meta: { pick: 'home' } });
   const heard = pushed(f, 'match');
   await f.developer.settle([{ bet: placed.bet, player: 2500n, casino: 0n }]);
   await f.bridge.call('game.receipt', { id: 'match' });
   const settled = await heard;
   assert.deepEqual([settled.status, settled.payout], ['settled', '2500']);
-  assert.equal(w.gameLimit().balance, String(200000n - 1000n + 2500n));
+  assert.equal(w.gameAllowance().allowance, String(200000n - 1000n + 2500n));
 });

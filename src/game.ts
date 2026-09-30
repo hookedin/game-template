@@ -1,8 +1,8 @@
 /** A developer probe: sends bridge requests by hand and prints every reply. Not a game. */
 import { HookedIn } from '@hookedin/play/sdk/sdk';
-import { mountBank } from '@hookedin/play/sdk/bank';
+import { mountAllowance } from '@hookedin/play/sdk/allowance';
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
-const bank = mountBank($('bank'));
+const allowance = mountAllowance($('allowance'));
 const output = $('probe-output'),
   request = $<HTMLTextAreaElement>('probe-request');
 let lastId = '';
@@ -40,7 +40,7 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
   info: () => ({ method: 'wallet.info', params: {} }),
   // A developer's round as the casino shows it: paste a round's ID.
   round: () => ({ method: 'wallet.round', params: { id: '0x' + '0'.repeat(64) } }),
-  funds: () => ({ method: 'game.requestFunds', params: { amount: stake() } }),
+  allowance: () => ({ method: 'game.requestAllowance', params: { amount: stake() } }),
 };
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-preset]'))
   button.addEventListener('click', () => {
@@ -53,22 +53,22 @@ $('probe-send').addEventListener('click', async () => {
   } catch (error: any) {
     return log('invalid JSON', error.message);
   }
-  bank.setBusy(true);
+  allowance.setBusy(true);
   try {
     log(`→ ${envelope.method}`, envelope.params);
     const result = await HookedIn.call(envelope.method, envelope.params);
     log(`← ${envelope.method}`, result);
-    if (envelope.method === 'game.requestFunds' && result && typeof result === 'object') bank.update(result);
+    if (envelope.method === 'game.requestAllowance' && result && typeof result === 'object') allowance.update(result);
   } catch (error: any) {
     log(`✖ ${envelope.method}`, { code: error.code, message: error.message });
   } finally {
-    bank.setBusy(false);
+    allowance.setBusy(false);
   }
 });
 $('probe-clear').addEventListener('click', () => {
   output.textContent = 'Replies appear here, newest first.';
 });
-HookedIn.onBalance(balance => log('event game.balance', balance));
+HookedIn.onAllowance(pushed => log('event game.allowance', pushed));
 HookedIn.onReceipt(receipt => log('event game.receipt', receipt));
 void HookedIn.hello()
   .then(async hello => {

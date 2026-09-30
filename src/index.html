@@ -20,7 +20,7 @@
         </div>
         <div class="head-note"><span class="live-dot"></span>Every reply, verbatim.</div>
       </header>
-      <div id="bank" class="bank"></div>
+      <div id="allowance" class="allowance"></div>
       <section class="probe-grid" aria-label="Bridge requests">
         <div class="field">
           <label for="probe-stake">Stake · wei</label>
@@ -37,7 +37,7 @@
         <button class="secondary" data-preset="hello" type="button">wallet.hello</button>
         <button class="secondary" data-preset="info" type="button">wallet.info</button>
         <button class="secondary" data-preset="round" type="button">wallet.round</button>
-        <button class="secondary" data-preset="funds" type="button">game.requestFunds · stake</button>
+        <button class="secondary" data-preset="allowance" type="button">game.requestAllowance · stake</button>
       </section>
       <label class="field-label" for="probe-request">Raw request (edit, then send)</label>
       <textarea id="probe-request" rows="6" spellcheck="false"></textarea>
@@ -48,7 +48,7 @@
       <pre id="probe-output" class="probe-output" aria-live="polite">Replies appear here, newest first.</pre>
       <footer class="foot">
         <div class="foot-note">
-          Exercises the wallet bridge without game rules: rejections, lost replies and funding prompts.
+          Exercises the wallet bridge without game rules: rejections, lost replies and allowance requests.
         </div>
       </footer>
     </main>

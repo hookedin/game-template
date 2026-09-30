@@ -10,12 +10,12 @@ import { gameWallet } from '@hookedin/play/testing/game-wallet.ts';
 const SPACE = 1n << 64n;
 const HALF = SPACE / 2n;
 
-test('a casino bet settles through the real wallet and moves the balance by its own terms', async () => {
+test('a casino bet settles through the real wallet and moves the allowance by its own terms', async () => {
   const f = await gameWallet(),
     w = f.wallet;
   w.openGame(f.identity('my-game'));
-  await w.setGameLimit('200000');
-  const before = BigInt(w.gameLimit().balance);
+  await w.setGameAllowance('200000');
+  const before = BigInt(w.gameAllowance().allowance);
   const receipt = await f.bridge.call('game.casinoBet', {
     id: 'first-bet',
     stake: '1000',
@@ -26,14 +26,14 @@ test('a casino bet settles through the real wallet and moves the balance by its 
   assert.equal(receipt.status, 'settled', 'the casino took the bet');
   const won = BigInt(receipt.outcome!) < HALF;
   assert.equal(receipt.payout, won ? '1900' : '0');
-  assert.equal(BigInt(w.gameLimit().balance), before - 1000n + BigInt(receipt.payout!));
+  assert.equal(BigInt(w.gameAllowance().allowance), before - 1000n + BigInt(receipt.payout!));
 });
 
 test('the same operation ID returns the saved receipt, so a lost reply costs nothing', async () => {
   const f = await gameWallet(),
     w = f.wallet;
   w.openGame(f.identity('my-game'));
-  await w.setGameLimit('200000');
+  await w.setGameAllowance('200000');
   const bet = { id: 'only-once', stake: '1000', chance: String(HALF), prize: '1900' };
   const first = await f.bridge.call('game.casinoBet', bet);
   assert.deepEqual(
@@ -45,11 +45,11 @@ test('the same operation ID returns the saved receipt, so a lost reply costs not
   assert.deepEqual(await f.bridge.call('game.receipt', { id: 'only-once' }), first);
 });
 
-test('a casino bet with no edge is declined, as the casino declines it, and the balance stays', async () => {
+test('a casino bet with no edge is declined, as the casino declines it, and the allowance stays', async () => {
   const f = await gameWallet(),
     w = f.wallet;
   w.openGame(f.identity('my-game'));
-  await w.setGameLimit('200000');
+  await w.setGameAllowance('200000');
   const receipt = await f.bridge.call('game.casinoBet', {
     id: 'fair',
     stake: '1000',
@@ -57,5 +57,5 @@ test('a casino bet with no edge is declined, as the casino declines it, and the 
     prize: '2000',
   });
   assert.deepEqual([receipt.status, receipt.payout], ['rejected', undefined]);
-  assert.equal(w.gameLimit().balance, '200000');
+  assert.equal(w.gameAllowance().allowance, '200000');
 });
