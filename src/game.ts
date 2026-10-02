@@ -8,7 +8,8 @@ const log = (title: string, value: unknown) => {
   const line = `${new Date().toLocaleTimeString([], { hour12: false })} ${title}\n${JSON.stringify(value, null, 2)}\n\n`;
   output.textContent = line + (output.textContent === 'Replies appear here, newest first.' ? '' : output.textContent);
 };
-const stake = () => $<HTMLInputElement>('probe-stake').value.trim();
+/** The stake typed, whole µETH, as the wei the bridge carries. */
+const stake = () => HookedIn.parseAmount($<HTMLInputElement>('probe-stake').value);
 const operationId = () => {
   const entered = $<HTMLInputElement>('probe-id').value.trim();
   lastId = entered || `probe-${Date.now()}`;
@@ -45,7 +46,11 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
 };
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-preset]'))
   button.addEventListener('click', () => {
-    request.value = JSON.stringify(presets[button.dataset.preset!]!(), null, 2);
+    try {
+      request.value = JSON.stringify(presets[button.dataset.preset!]!(), null, 2);
+    } catch (error: any) {
+      log('invalid stake', error.message);
+    }
   });
 $('probe-send').addEventListener('click', async () => {
   let envelope: { method: string; params: Record<string, unknown> };
