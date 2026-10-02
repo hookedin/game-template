@@ -1,8 +1,6 @@
 /** A developer probe: sends bridge requests by hand and prints every reply. Not a game. */
 import { HookedIn } from '@hookedin/play/sdk/sdk';
-import { mountAllowance } from '@hookedin/play/sdk/allowance';
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
-const allowance = mountAllowance($('allowance'));
 const output = $('probe-output'),
   request = $<HTMLTextAreaElement>('probe-request');
 let lastId = '';
@@ -29,7 +27,8 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
   }),
   // A developer bet: a bet against you, the game's developer, whose bank takes the stake at once and whose server
   // settles it, paying what it says. `meta` is your game's own JSON, saying what the bet is. It needs the game
-  // published. Its settled receipt arrives by itself, as a `game.receipt` event.
+  // published, and the player's leave to place developer bets. Its settled receipt arrives by itself, as a
+  // `game.receipt` event; what it paid stays out of the allowance the wallet shows until `game.end` ends its group.
   developerBet: () => ({
     method: 'game.developerBet',
     params: { id: operationId(), stake: stake(), meta: { pick: 'home' }, group: 'probe' },
@@ -40,7 +39,9 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
   info: () => ({ method: 'wallet.info', params: {} }),
   // A developer's round as the casino shows it: paste a round's ID.
   round: () => ({ method: 'wallet.round', params: { id: '0x' + '0'.repeat(64) } }),
-  allowance: () => ({ method: 'game.requestAllowance', params: { amount: stake() } }),
+  allowance: () => ({ method: 'game.allowance', params: { group: 'probe' } }),
+  requestAllowance: () => ({ method: 'game.requestAllowance', params: { amount: stake(), developerBets: true } }),
+  end: () => ({ method: 'game.end', params: { group: 'probe' } }),
 };
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-preset]'))
   button.addEventListener('click', () => {
@@ -53,22 +54,16 @@ $('probe-send').addEventListener('click', async () => {
   } catch (error: any) {
     return log('invalid JSON', error.message);
   }
-  allowance.setBusy(true);
   try {
     log(`→ ${envelope.method}`, envelope.params);
-    const result = await HookedIn.call(envelope.method, envelope.params);
-    log(`← ${envelope.method}`, result);
-    if (envelope.method === 'game.requestAllowance' && result && typeof result === 'object') allowance.update(result);
+    log(`← ${envelope.method}`, await HookedIn.call(envelope.method, envelope.params));
   } catch (error: any) {
     log(`✖ ${envelope.method}`, { code: error.code, message: error.message });
-  } finally {
-    allowance.setBusy(false);
   }
 });
 $('probe-clear').addEventListener('click', () => {
   output.textContent = 'Replies appear here, newest first.';
 });
-HookedIn.onAllowance(pushed => log('event game.allowance', pushed));
 HookedIn.onReceipt(receipt => log('event game.receipt', receipt));
 void HookedIn.hello()
   .then(async hello => {

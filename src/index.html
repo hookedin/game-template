@@ -10,17 +10,6 @@
   </head>
   <body>
     <main>
-      <header class="game-head">
-        <div>
-          <div class="eyebrow">DEVELOPER TOOL</div>
-          <div class="game-title">
-            <h1>Bridge probe</h1>
-            <span class="edition">NOT A GAME</span>
-          </div>
-        </div>
-        <div class="head-note"><span class="live-dot"></span>Every reply, verbatim.</div>
-      </header>
-      <div id="allowance" class="allowance"></div>
       <section class="probe-grid" aria-label="Bridge requests">
         <div class="field">
           <label for="probe-stake">Stake · wei</label>
@@ -37,7 +26,11 @@
         <button class="secondary" data-preset="hello" type="button">wallet.hello</button>
         <button class="secondary" data-preset="info" type="button">wallet.info</button>
         <button class="secondary" data-preset="round" type="button">wallet.round</button>
-        <button class="secondary" data-preset="allowance" type="button">game.requestAllowance · stake</button>
+        <button class="secondary" data-preset="allowance" type="button">game.allowance · probe</button>
+        <button class="secondary" data-preset="requestAllowance" type="button">
+          game.requestAllowance · stake, developer bets
+        </button>
+        <button class="secondary" data-preset="end" type="button">game.end · probe</button>
       </section>
       <label class="field-label" for="probe-request">Raw request (edit, then send)</label>
       <textarea id="probe-request" rows="6" spellcheck="false"></textarea>
@@ -46,11 +39,6 @@
         <button class="secondary" id="probe-clear" type="button">Clear output</button>
       </div>
       <pre id="probe-output" class="probe-output" aria-live="polite">Replies appear here, newest first.</pre>
-      <footer class="foot">
-        <div class="foot-note">
-          Exercises the wallet bridge without game rules: rejections, lost replies and allowance requests.
-        </div>
-      </footer>
     </main>
     <script type="module" src="./game.js" crossorigin="anonymous"></script>
   </body>
