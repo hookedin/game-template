@@ -8,7 +8,7 @@ const log = (title: string, value: unknown) => {
   const line = `${new Date().toLocaleTimeString([], { hour12: false })} ${title}\n${JSON.stringify(value, null, 2)}\n\n`;
   output.textContent = line + (output.textContent === 'Replies appear here, newest first.' ? '' : output.textContent);
 };
-/** The stake typed, whole µETH, as the wei the bridge carries. */
+/** The stake typed, whole METH, as the wei the bridge carries. */
 const stake = () => HookedIn.parseAmount($<HTMLInputElement>('probe-stake').value);
 const operationId = () => {
   const entered = $<HTMLInputElement>('probe-id').value.trim();
