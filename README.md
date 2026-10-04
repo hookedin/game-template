@@ -23,8 +23,8 @@ npm run dev
 
 This builds the game into `dist/` and serves it at `http://127.0.0.1:4185/` (`PORT` moves it), building it again on
 every page load. Open the wallet at [play.hookedin.com](https://play.hookedin.com), go to **Games**, choose
-**Open a game by its URL** and open `http://127.0.0.1:4185/`. Press **Allowance** in the wallet's top bar to give the
-game an allowance. Pick a preset such as `game.casinoBet · 50% to double`, edit its JSON if you like, and press **Send**:
+**Open a game by its URL** and open `http://127.0.0.1:4185/`. Give the game an allowance in the wallet's dialog, which
+asks as the game loads; **Set allowance** in the top bar opens it again. Pick a preset such as `game.casinoBet · 50% to double`, edit its JSON if you like, and press **Send**:
 every request, reply and event is printed, newest first.
 
 The `50% to double` preset leaves the casino no edge, so it declines it: that shows you a rejection. Lower the chance
