@@ -47,8 +47,8 @@ deploy together.
 | [wrangler.jsonc](wrangler.jsonc)         | The Cloudflare Worker `npm run build && npx wrangler deploy` publishes `dist/` as                                                    |
 | [.github/workflows/](.github/workflows/) | Test and build on every push; deploy on push to `main`                                                                               |
 
-`@hookedin/play` is installed from play's `main` branch, and the workflow updates it to the newest commit before every
-build. The build is the `hookedin-game` command it installs.
+`@hookedin/play` is installed from play's `main` branch. The workflow updates it to the newest commit before every
+build, and on `main` commits the lockfile it tested. The build is the `hookedin-game` command it installs.
 
 ## Make it your game
 
