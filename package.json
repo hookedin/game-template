@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": "github:hookedin/game-template",
   "engines": {
-    "node": ">=24.4"
+    "node": ">=26"
   },
   "scripts": {
     "build": "hookedin-game build",
@@ -20,7 +20,7 @@
     "@hookedin/play": "git+https://github.com/hookedin/play.git#main"
   },
   "devDependencies": {
-    "@types/node": "24.13.5",
+    "@types/node": "26.6.4",
     "prettier": "3.9.8",
     "tsx": "4.23.13",
     "typescript": "7.0.2"

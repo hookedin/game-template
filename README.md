@@ -12,7 +12,7 @@ start with [building a game](https://hookedin.com/docs/games/quick-start/).
 
 ## Quick start
 
-You need Node 24.4 or later. Create your repository with **Use this template**, or clone this one:
+You need Node 26 or later. Create your repository with **Use this template**, or clone this one:
 
 ```sh
 git clone https://github.com/hookedin/game-template my-game
