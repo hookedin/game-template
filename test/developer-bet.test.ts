@@ -37,7 +37,7 @@ test('a developer bet on a round your casino bet backs is paid what your scheme 
     group,
     meta: { seedHash, ...odds },
   });
-  assert.equal(placed.status, 'open', 'the stake went to your bank at once');
+  assert.equal(placed.status, 'open', "the stake went to your game's bank at once");
   // When betting ends, your server backs the bet with a casino bet of its own on the round, in the bet's group, whose
   // meta names the bets it backs, and pays what its scheme says: here, what the bet's odds pay on the outcome.
   const revealed = await f.developer.casinoBet({
@@ -55,7 +55,7 @@ test('a developer bet on a round your casino bet backs is paid what your scheme 
   assert.deepEqual([settled.status, settled.payout], ['settled', String(pays)]);
 });
 
-test('a developer bet is paid what your server signs, from your bank', async () => {
+test("a developer bet is paid what your server signs, from your game's bank", async () => {
   const f = await gameWallet(),
     w = f.wallet;
   w.openGame(f.identity());

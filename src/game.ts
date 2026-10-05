@@ -26,7 +26,7 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
       prize: String(2n * BigInt(stake())),
     },
   }),
-  // A developer bet: a bet against you, the game's developer, whose bank takes the stake at once and whose server
+  // A developer bet: a bet against you, the game's developer. The game's bank takes the stake at once and your server
   // settles it, paying what it says. `meta` is your game's own JSON, saying what the bet is. It needs the game
   // published, and the player's leave to place developer bets. Its settled receipt arrives by itself, as a
   // `game.receipt` event; what it paid stays out of the allowance the wallet shows until `game.end` ends its group.
@@ -38,7 +38,7 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
   receipt: () => ({ method: 'game.receipt', params: { id: lastId || operationId() } }),
   hello: () => ({ method: 'wallet.hello', params: {} }),
   info: () => ({ method: 'wallet.info', params: {} }),
-  // A developer's round as the casino shows it: paste a round's ID.
+  // A game's round as the casino shows it: paste a round's ID.
   round: () => ({ method: 'wallet.round', params: { id: '0x' + '0'.repeat(64) } }),
   allowance: () => ({ method: 'game.allowance', params: { group: 'probe' } }),
   // The game places developer bets: the allowance dialog the player opens from the top bar asks about them too.
