@@ -4,7 +4,7 @@ Start here to build a game for [HookedIn](https://hookedin.com), a casino whose 
 
 This repository is a GitHub template. What it holds is the **bridge probe**: a page that sends every wallet bridge
 method by hand and prints each raw reply. It is a working HookedIn game in four source files, and the quickest way to
-see what the wallet answers to a bet, a rejection, a request for a larger allowance or a lost reply. Replace the probe's
+see what the wallet answers to a bet, a rejection, a bet beyond the allowance or a lost reply. Replace the probe's
 page with your game and keep the rest.
 
 How a game works, the bridge, the SDK and the casino are documented at **[hookedin.com/docs](https://hookedin.com/docs/)**;
@@ -23,16 +23,16 @@ npm run dev
 
 This builds the game into `dist/` and serves it at `http://127.0.0.1:4185/` (`PORT` moves it), building it again on
 every page load. Open the wallet at [play.hookedin.com](https://play.hookedin.com), go to **Games**, choose
-**Open a game by its URL** and open `http://127.0.0.1:4185/`. Give the game an allowance in the wallet's dialog, which
-asks as the game loads; **Set allowance** in the top bar opens it again. Pick a preset such as `game.casinoBet · 50% to double`, edit its JSON if you like, and press **Send**:
-every request, reply and event is printed, newest first.
+**Open a game by its URL** and open `http://127.0.0.1:4185/`. Give the game an allowance with **Set allowance** in the
+wallet's top bar: a game never asks. Pick a preset such as `game.casinoBet · 50% to double`, edit its JSON if you like,
+and press **Send**: every request, reply and event is printed, newest first.
 
 The `50% to double` preset leaves the casino no edge, so it declines it: that shows you a rejection. Lower the chance
 or the prize for a bet the casino takes. The `game.developerBet` preset needs the game published, the player's leave to
-place developer bets (the `game.requestAllowance` preset asks for it) and a server that settles its bets with your key;
-see [developer bets](https://hookedin.com/docs/games/developer-bets/). A game with a server of its
-own starts from [game-roulette](https://github.com/hookedin/game-roulette) instead: a template whose page and server
-deploy together.
+place developer bets (send the `game.placesDeveloperBets` preset, then allow them in the top bar) and a server that
+settles its bets with your key; see [developer bets](https://hookedin.com/docs/games/developer-bets/). A game with a
+server of its own starts from [game-roulette](https://github.com/hookedin/game-roulette) instead: a template whose page
+and server deploy together.
 
 ## What is in the repository
 

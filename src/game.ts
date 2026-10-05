@@ -41,7 +41,8 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
   // A developer's round as the casino shows it: paste a round's ID.
   round: () => ({ method: 'wallet.round', params: { id: '0x' + '0'.repeat(64) } }),
   allowance: () => ({ method: 'game.allowance', params: { group: 'probe' } }),
-  requestAllowance: () => ({ method: 'game.requestAllowance', params: { amount: stake(), developerBets: true } }),
+  // The game places developer bets: the allowance dialog the player opens from the top bar asks about them too.
+  placesDeveloperBets: () => ({ method: 'game.placesDeveloperBets', params: {} }),
   end: () => ({ method: 'game.end', params: { group: 'probe' } }),
 };
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-preset]'))
