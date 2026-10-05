@@ -83,7 +83,7 @@ what your server signs. Replace their bets with your own rules and prove your ga
    **Edit Cloudflare Workers** template) and the variable `CLOUDFLARE_ACCOUNT_ID`.
 3. Push to `main`: [Deploy](.github/workflows/deploy.yml) tests, builds and publishes.
 
-Any static host works if it sends the headers in `dist/_headers`. Then publish the game's URL in **My games**, from the
+Any static host works if it sends the headers in `dist/_headers`. Then publish the game's URL on **Developer**, in the
 wallet of the account that is to earn its commission: the account that publishes a game is its developer.
 [Publishing](https://hookedin.com/docs/games/publishing/) covers hosting, publishing, moving hosts and the house
 library.
