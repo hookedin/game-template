@@ -43,7 +43,10 @@ const presets: Record<string, () => { method: string; params: Record<string, unk
   allowance: () => ({ method: 'game.allowance', params: { group: 'probe' } }),
   // The game places developer bets: the allowance dialog the player opens from the top bar asks about them too.
   placesDeveloperBets: () => ({ method: 'game.placesDeveloperBets', params: {} }),
-  end: () => ({ method: 'game.end', params: { group: 'probe' } }),
+  // The group ends with meta, your own JSON saying how it went, which `game.history` lists from then on.
+  end: () => ({ method: 'game.end', params: { group: 'probe', meta: { note: 'what the page showed' } } }),
+  // The player's history of your game, newest first: your operations, checked, and the groups you ended with meta.
+  history: () => ({ method: 'game.history', params: { limit: 10 } }),
 };
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-preset]'))
   button.addEventListener('click', () => {
