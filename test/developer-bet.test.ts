@@ -26,7 +26,8 @@ test('a developer bet on a round your casino bet backs is paid what your scheme 
   w.openGame(f.identity());
   // The player lets the game place developer bets, which the wallet warns about.
   await w.setGameAllowance('200000', true);
-  // Your server opens a round and tells its pages the id and the hash of its seed; the bet names both.
+  // Your server opens a round and tells its pages the id and the hash of its seed; the bet names the round by both.
+  // What a bet pays is your server's to say, never the bet's: a player writes their own meta.
   const round = await f.developer.openRound(),
     seedHash = await f.developer.seedHash(round.id),
     odds = { chance: String(HALF), prize: '1900' },
@@ -35,11 +36,11 @@ test('a developer bet on a round your casino bet backs is paid what your scheme 
     id: 'spin',
     stake: '1000',
     group,
-    meta: { seedHash, ...odds },
+    meta: { seedHash },
   });
   assert.equal(placed.status, 'open', "the stake went to your game's bank at once");
   // When betting ends, your server backs the bet with a casino bet of its own on the round, in the bet's group, whose
-  // meta names the bets it backs, and pays what its scheme says: here, what the bet's odds pay on the outcome.
+  // meta names the bets it backs, and pays what its scheme says: here, what its own odds pay on the outcome.
   const revealed = await f.developer.casinoBet({
     round: round.id,
     stake: '1000',
