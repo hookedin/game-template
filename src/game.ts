@@ -94,6 +94,7 @@ $('probe-clear').addEventListener('click', () => {
   output.textContent = 'Replies appear here, newest first.';
 });
 HookedIn.onReceipt(receipt => log('event game.receipt', receipt));
+HookedIn.onAllowance(allowance => log('event game.allowance', allowance));
 void HookedIn.hello()
   .then(async hello => {
     log('wallet.hello', hello);
