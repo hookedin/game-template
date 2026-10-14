@@ -30,15 +30,15 @@ const operationId = () => {
 };
 const presets: Record<string, () => { method: string; params: Record<string, unknown> }> = {
   // A step: the table of results it can end in, each a weight and the cash it leaves the player. The wallet splits it
-  // into casino bets its quote covers, draws one, and lands on a result: here, double the stake or nothing, as likely
-  // as each other. More results make a step the wallet splits into more bets.
+  // into casino bets its quote covers, draws one, and lands on a result: here, 1.9 times the stake or nothing, as
+  // likely as each other, which leaves the casino its edge. More results make a step the wallet splits into more bets.
   casinoBet: () => ({
     method: 'game.casinoBet',
     params: {
       id: operationId(),
       cash: stake(),
       results: [
-        { weight: 1n, cash: 2n * stake(), label: 'Double' },
+        { weight: 1n, cash: (19n * stake()) / 10n, label: 'Win' },
         { weight: 1n, cash: 0n, label: 'Nothing' },
       ],
     },

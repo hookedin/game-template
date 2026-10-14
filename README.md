@@ -18,18 +18,22 @@ You need Node 26 or later. Create your repository with **Use this template**, or
 git clone https://github.com/hookedin/game-template my-game
 cd my-game
 npm install
+npm test
 npm run dev
 ```
 
-This builds the game into `dist/` and serves it at `http://127.0.0.1:4185/` (`PORT` moves it), building it again on
-every page load. Open the wallet at [play.hookedin.com](https://play.hookedin.com), go to **Games**, choose
-**Open a game by its URL** and open `http://127.0.0.1:4185/`. Give the game an allowance with **Set allowance** in the
-wallet's top bar: a game never asks. Pick a preset such as `game.casinoBet · 50% to double`, edit its JSON if you like,
-and press **Send**: every request, reply and event is printed, newest first.
+`npm test` places casino and developer bets through the real wallet against a stub casino, with no ETH. `npm run dev`
+builds the game into `dist/` and serves it at `http://127.0.0.1:4185/` (`PORT` moves it), building it again on every
+page load. Open the wallet at [play.hookedin.com](https://play.hookedin.com), go to **Games**, choose **Open a game by
+its URL** and open `http://127.0.0.1:4185/`; allow the wallet to reach your local network when your browser asks. Give
+the game an allowance with **Set allowance** in the wallet's top bar: a game never asks. Pick a preset such as
+`game.casinoBet · 50% for 1.9×`, edit its JSON if you like, and press **Send**: every request, reply and event is
+printed, newest first.
 
-The `50% to double` preset is a step of two results, double or nothing, which leaves the casino no edge, so its quote
-does not cover it and the wallet refuses it with `not-covered` before signing anything. Lower the double, or its
-weight, for a step the casino takes, and send `wallet.showBet · last ID` to see its proof in the wallet. The `game.developerBet` preset needs the game published, the player's leave to
+The `50% for 1.9×` preset is a step of two results, 1.9 times the stake or nothing, as likely as each other: the
+casino takes it, and `wallet.showBet · last ID` shows its proof in the wallet. Raise the prize to twice the stake and
+the casino has no edge: its quote does not cover the bet, and the wallet refuses it with `not-covered` before signing
+anything. The `game.developerBet` preset needs the game published, the player's leave to
 place developer bets (send the `game.placesDeveloperBets` preset, then allow them in the top bar) and a server that
 settles its bets with the server key you name for the game; see [developer bets](https://hookedin.com/docs/games/developer-bets/). A game with a
 server of its own starts from [game-roulette](https://github.com/hookedin/game-roulette) instead: a template whose page
