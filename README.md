@@ -65,7 +65,15 @@ build, and on `main` commits the lockfile it tested. The build is the `hookedin-
    square, with no rounded background of its own: the wallet rounds its corners.
 4. `package.json`: the package `name` and `repository`.
 
-Keep the probe in a branch: it is the fastest way to reproduce a reply you did not expect.
+To start from a house game instead, put it in place of the probe, here dice, whose tests pass as they are:
+
+```sh
+rm -rf src test
+cp -r node_modules/@hookedin/play/games/dice/src node_modules/@hookedin/play/games/dice/test .
+```
+
+Keep the probe in a branch: it is the fastest way to reproduce a reply you did not expect. After a change, **Reload
+game** in the menu under the game's name loads it again in the wallet, keeping its allowance.
 
 ## Tests
 
