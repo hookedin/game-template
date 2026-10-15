@@ -23,10 +23,13 @@ npm run dev
 ```
 
 `npm test` places casino and developer bets through the real wallet against a stub casino, with no ETH. `npm run dev`
-builds the game into `dist/` and serves it at `http://127.0.0.1:4185/` (`PORT` moves it), building it again on every
-page load. Open the wallet at [play.hookedin.com](https://play.hookedin.com), go to **Games**, choose **Open a game by
-its URL** and open `http://127.0.0.1:4185/`; allow the wallet to reach your local network when your browser asks. Give
-the game an allowance with **Set allowance** in the wallet's top bar: a game never asks. Pick a preset such as
+builds the game into `dist/` and serves it at `http://127.0.0.1:4185/` (`PORT` moves it); saving a file in `src/`
+builds it again and reloads the game, keeping its allowance. Beside it, `http://localhost:4185/` is a local wallet that
+plays the game at once with pretend money and a stand-in casino, with no wallet or ETH: **Allow** in its top bar gives
+the game an allowance. To play it with ETH, open the wallet at [play.hookedin.com](https://play.hookedin.com), go to
+**Games**, choose **Open a game by its URL** and open `http://127.0.0.1:4185/`; allow the wallet to reach your local
+network when your browser asks. Give the game an allowance with **Set allowance** in the wallet's top bar: a game never
+asks. Pick a preset such as
 `game.casinoBet · 50% for 1.9×`, edit its JSON if you like, and press **Send**: every request, reply and event is
 printed, newest first.
 
@@ -43,6 +46,7 @@ and server deploy together.
 
 | File                                     | What it holds                                                                                                                        |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| [AGENTS.md](AGENTS.md)                   | What an AI coding agent needs to build a game here: where the docs and examples are, the commands and the rules                      |
 | [src/index.html](src/index.html)         | The page. It loads `./shared.css`, `./style.css` and `./game.js`                                                                     |
 | [src/game.ts](src/game.ts)               | The entry point, bundled to `dist/game.js`. Here: the probe's presets, send button and log                                           |
 | [src/style.css](src/style.css)           | Page styles, on top of the SDK's `shared.css`                                                                                        |
