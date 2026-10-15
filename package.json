@@ -11,7 +11,7 @@
   "scripts": {
     "build": "hookedin-game build",
     "dev": "hookedin-game serve",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc",
     "test": "npm run typecheck && node --import tsx --test test/*.test.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
