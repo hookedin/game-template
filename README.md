@@ -25,7 +25,7 @@ deploy together.
 | [src/icon.svg](src/icon.svg)             | The icon the wallet shows the game by: a square SVG of one symbol ([the icon](https://hookedin.com/docs/games/publishing/#the-icon)) |
 | [test/](test/)                           | Real casino and developer bets through the real wallet, against a stub casino held to its rules                                      |
 | [package.json](package.json)             | `build`, `dev`, `typecheck`, `test`, `format`; one dependency, `@hookedin/play`                                                      |
-| [wrangler.jsonc](wrangler.jsonc)         | The Cloudflare Worker `npx wrangler deploy` publishes `dist/` as                                                                     |
+| [wrangler.jsonc](wrangler.jsonc)         | The Cloudflare Worker `npx wrangler deploy` deploys `dist/` as                                                                       |
 | [.github/workflows/](.github/workflows/) | Test and build on every push; deploy on push to `main`                                                                               |
 
 `@hookedin/play` is installed from play's `main` branch. The workflow updates it to the newest commit before every
